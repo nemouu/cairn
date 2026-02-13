@@ -1,0 +1,14 @@
+# Go binary
+/cairn
+/cmd/server/server
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+
+# Environment overrides
+.env
+docker-compose.override.yml
