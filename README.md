@@ -49,3 +49,7 @@ Adding a new entry type = one SQL migration + one Go package. No changes to exis
 - Full-text search via PostgreSQL `tsvector`
 - Turbo/Hotwire for snappy partial page updates
 - Browser bookmark import
+
+## License
+
+MIT — see [LICENSE](LICENSE) for details.
