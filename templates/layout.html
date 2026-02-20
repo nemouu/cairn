@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>{{.Title}} – Cairn</title>
+        <link rel="stylesheet" href="/static/style.css" />
+    </head>
+    <body>
+        <header>
+            <a href="/">Cairn</a>
+            <div class="new-entry">
+                <button
+                    onclick="
+                        document
+                            .getElementById('type-menu')
+                            .classList.toggle('hidden')
+                    "
+                >
+                    +
+                </button>
+                <div id="type-menu" class="hidden">
+                    <a href="/notes/new">Note</a>
+                    <a href="/bookmarks/new">Bookmark</a>
+                    <a href="/todos/new">Todo List</a>
+                </div>
+            </div>
+        </header>
+        <main>{{template "content" .}}</main>
+    </body>
+</html>

@@ -1,0 +1,26 @@
+{{define "content"}}
+<h1>{{if .IsEdit}}Edit Note{{else}}New Note{{end}}</h1>
+<form
+    method="POST"
+    action="{{if .IsEdit}}/notes/{{.Entry.ID}}{{else}}/notes{{end}}"
+>
+    <div>
+        <label for="title">Title</label>
+        <input
+            type="text"
+            id="title"
+            name="title"
+            value="{{if .IsEdit}}{{.Entry.Title}}{{end}}"
+            required
+        />
+    </div>
+    <div>
+        <label for="body">Body</label>
+        <textarea id="body" name="body" rows="10">
+{{if .IsEdit}}{{.Note.Body}}{{end}}</textarea
+        >
+    </div>
+    <button type="submit">{{if .IsEdit}}Save{{else}}Create{{end}}</button>
+</form>
+<a href="/">Back to dashboard</a>
+{{end}}

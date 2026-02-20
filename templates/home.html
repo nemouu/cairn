@@ -1,0 +1,11 @@
+{{define "content"}}
+<h1>Your entries</h1>
+{{if .Entries}} {{range .Entries}}
+<div class="entry">
+    <span class="badge">{{.EntryType}}</span>
+    <a href="/{{.EntryType}}s/{{.ID}}">{{.Title}}</a>
+    <time>{{.UpdatedAt.Format "2 Jan 2006"}}</time>
+</div>
+{{end}} {{else}}
+<p>No entries yet. Click + to create one.</p>
+{{end}} {{end}}
