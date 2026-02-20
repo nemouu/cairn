@@ -66,6 +66,14 @@ func GetByID(ctx context.Context, pool *pgxpool.Pool, id string) (entries.Entry,
 	return e, t, err
 }
 
+func Update(ctx context.Context, pool *pgxpool.Pool, id, title string) error {
+	_, err := pool.Exec(ctx,
+		`UPDATE entries SET title = $1, updated_at = now() WHERE id = $2`,
+		title, id,
+	)
+	return err
+}
+
 func AddItem(ctx context.Context, pool *pgxpool.Pool, entryID string, body string) error {
 	_, err := pool.Exec(ctx,
 		`INSERT INTO todo_items (entry_id, body, position)
