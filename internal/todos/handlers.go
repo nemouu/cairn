@@ -190,6 +190,7 @@ func handleUpdateItem(pool *pgxpool.Pool) http.HandlerFunc {
 		}
 
 		if err := UpdateItem(r.Context(), pool, itemID, body); err != nil {
+			log.Println("update item error:", err)
 			http.Error(w, "database error", http.StatusInternalServerError)
 			return
 		}

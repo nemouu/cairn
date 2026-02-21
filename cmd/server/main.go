@@ -9,6 +9,7 @@ import (
 	"github.com/nemouu/cairn/internal/database"
 	"github.com/nemouu/cairn/internal/entries"
 	"github.com/nemouu/cairn/internal/notes"
+	"github.com/nemouu/cairn/internal/todos"
 )
 
 func main() {
@@ -57,6 +58,7 @@ func main() {
 	})
 
 	notes.RegisterRoutes(mux, pool)
+	todos.RegisterRoutes(mux, pool)
 
 	log.Println("listening on :8080")
 	log.Fatal(http.ListenAndServe(":8080", mux))

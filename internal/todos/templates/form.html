@@ -1,0 +1,20 @@
+{{define "content"}}
+<h1>{{if .IsEdit}}Edit Todo{{else}}New Todo{{end}}</h1>
+<form
+    method="POST"
+    action="{{if .IsEdit}}/todos/{{.Entry.ID}}{{else}}/todos{{end}}"
+>
+    <div>
+        <label for="title">Title</label>
+        <input
+            type="text"
+            id="title"
+            name="title"
+            value="{{if .IsEdit}}{{.Entry.Title}}{{end}}"
+            required
+        />
+    </div>
+    <button type="submit">{{if .IsEdit}}Save{{else}}Create{{end}}</button>
+</form>
+<a href="/">Back to dashboard</a>
+{{end}}

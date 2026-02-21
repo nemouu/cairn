@@ -1,0 +1,32 @@
+{{define "content"}}
+<article>
+    <h1>{{.Entry.Title}}</h1>
+    <time>{{.Entry.UpdatedAt.Format "2 Jan 2006, 15:04"}}</time>
+    {{range .Todo}}
+    <div class="todo-item">
+        <form method="POST" action="/todos/{{$.Entry.ID}}/items/{{.ID}}/toggle" style="display:inline">
+            <button type="submit">{{if .IsDone}}☑{{else}}☐{{end}}</button>
+        </form>
+        <span{{if .IsDone}} style="text-decoration:line-through"{{end}}>{{.Body}}</span>
+        <form method="POST" action="/todos/{{$.Entry.ID}}/items/{{.ID}}/delete" style="display:inline">
+            <button type="submit">Delete</button>
+        </form>
+    </div>
+    {{end}}
+    <form method="POST" action="/todos/{{.Entry.ID}}/items">
+        <input type="text" name="body" placeholder="Add new item..." required>
+        <button type="submit">Add</button>
+    </form>
+    <div class="actions">
+        <a href="/todos/{{.Entry.ID}}/edit">Edit</a>
+        <form
+            method="POST"
+            action="/todos/{{.Entry.ID}}/delete"
+            style="display: inline"
+        >
+            <button type="submit">Delete</button>
+        </form>
+    </div>
+</article>
+<a href="/">Back to dashboard</a>
+{{end}}
