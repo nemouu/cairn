@@ -33,7 +33,7 @@ func Create(ctx context.Context, pool *pgxpool.Pool, title, url string) (string,
 	}
 
 	_, err = tx.Exec(ctx,
-		`INSERT INTO notes (entry_id, url) VALUES ($1, $2)`,
+		`INSERT INTO bookmarks (entry_id, url) VALUES ($1, $2)`,
 		id, url,
 	)
 	if err != nil {

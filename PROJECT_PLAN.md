@@ -294,53 +294,53 @@ The goal is to have the boring infrastructure done so Saturday and Sunday are pu
 
 #### 6. Shared entry listing (dashboard)
 
-- [ ] Write `internal/entries/entries.go`:
+- [x] Write `internal/entries/entries.go`:
   - `ListAll(ctx, pool) ([]Entry, error)` — queries all entries ordered by `updated_at DESC`
   - Define an `Entry` struct with the shared fields
-- [ ] Write `templates/home.html` — the main dashboard:
+- [x] Write `templates/home.html` — the main dashboard:
   - Entry list where each entry shows:
     - Type badge (small colored label: Note, Bookmark, Todo)
     - Title (entire entry row is a clickable link to the view page)
     - Last updated date
   - Empty state message when no entries exist ("No entries yet. Click + to create one.")
-- [ ] Wire up the `GET /` handler to use this
+- [x] Wire up the `GET /` handler to use this
 
 #### 7. Plain notes — full CRUD
 
 This is the simplest type and will establish the pattern for the others.
 
-- [ ] Write `internal/notes/queries.go`:
+- [x] Write `internal/notes/queries.go`:
   - `Create(ctx, pool, title, body) (string, error)` — INSERT into both `entries` and `notes` in a transaction
   - `GetByID(ctx, pool, id) (Entry, Note, error)` — JOIN query
   - `Update(ctx, pool, id, title, body) error` — UPDATE both tables in a transaction, touch `updated_at`
   - `Delete(ctx, pool, id) error` — DELETE from `entries` (CASCADE handles `notes`)
-- [ ] Write `internal/notes/handlers.go`:
+- [x] Write `internal/notes/handlers.go`:
   - `HandleForm` — render the new/edit form
   - `HandleCreate` — parse form, validate title not empty, call Create, redirect to view
   - `HandleView` — fetch and render
   - `HandleUpdate` — parse form, validate, call Update, redirect to view
   - `HandleDelete` — call Delete, redirect to dashboard
-- [ ] Write note templates:
+- [x] Write note templates:
   - `templates/notes/form.html` — title input + body textarea (reused for new and edit)
   - `templates/notes/view.html` — rendered note with edit/delete actions
-- [ ] Register routes in main.go
-- [ ] Test the full flow: create → view → edit → view → delete → dashboard
+- [x] Register routes in main.go
+- [x] Test the full flow: create → view → edit → view → delete → dashboard
 
 #### 8. Todo lists
 
-- [ ] Write `internal/todos/queries.go`:
+- [x] Write `internal/todos/queries.go`:
   - `Create(ctx, pool, title) (string, error)` — creates entry only (items added separately)
   - `GetByID(ctx, pool, id) (Entry, []TodoItem, error)` — entry + all items ordered by position
   - `AddItem(ctx, pool, entryID, body) error` — INSERT item with position = max+1
   - `ToggleItem(ctx, pool, itemID) error` — flip `is_done`
   - `DeleteItem(ctx, pool, itemID) error`
   - `Delete(ctx, pool, id) error` — delete entry (CASCADE handles items)
-- [ ] Write handlers following same pattern as notes
-- [ ] Write todo templates:
+- [x] Write handlers following same pattern as notes
+- [x] Write todo templates:
   - `templates/todos/form.html` — just a title input for the list
   - `templates/todos/view.html` — the list with checkboxes, an "add item" form at the bottom, and delete buttons per item
-- [ ] Register routes
-- [ ] Test: create list → add items → toggle items → delete items → delete list
+- [x] Register routes
+- [x] Test: create list → add items → toggle items → delete items → delete list
 
 **Saturday checkpoint:** you have a working dashboard showing all entries, full CRUD for notes, and functional todo lists with item management. The core pattern is established.
 
@@ -350,22 +350,22 @@ This is the simplest type and will establish the pattern for the others.
 
 #### 9. Bookmarks with link checking
 
-- [ ] Write `internal/bookmarks/queries.go`:
+- [x] Write `internal/bookmarks/queries.go`:
   - `Create(ctx, pool, title, url) (string, error)`
   - `GetByID(ctx, pool, id) (Entry, Bookmark, error)`
   - `Update(ctx, pool, id, title, url) error`
   - `Delete(ctx, pool, id) error`
   - `UpdateCheckResult(ctx, pool, id, status, contentHash) error`
-- [ ] Write `internal/bookmarks/checker.go`:
+- [x] Write `internal/bookmarks/checker.go`:
   - `Check(ctx, pool, entryID) error` — HTTP GET with 10s timeout, record status code, hash response body (limit to 1MB with `io.LimitReader`), update bookmark row
   - Handle unreachable URLs gracefully (status = 0)
-- [ ] Write handlers:
+- [x] Write handlers:
   - Standard CRUD handlers like notes
   - `HandleCheck` — calls the checker, redirects back to bookmark view
-- [ ] Write bookmark templates:
+- [x] Write bookmark templates:
   - `templates/bookmarks/form.html` — title + URL inputs
   - `templates/bookmarks/view.html` — shows URL (clickable), status badge (green/amber/red based on last_status), last checked time, "Check Now" button
-- [ ] Register routes
+- [x] Register routes
 - [ ] Test with known-good URLs, known-dead URLs, and slow/timeout URLs
 
 #### 10. Tagging (shared across all types)

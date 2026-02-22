@@ -1,0 +1,30 @@
+{{define "content"}}
+<article>
+    <h1>{{.Entry.Title}}</h1>
+    <time>{{.Entry.UpdatedAt.Format "2 Jan 2006, 15:04"}}</time>
+    <a href="{{.Bookmark.URL}}" target="_blank">{{.Bookmark.URL}}</a>
+    <div class="actions">
+        <a href="/bookmarks/{{.Entry.ID}}/edit">Edit</a>
+        <form
+            method="POST"
+            action="/bookmarks/{{.Entry.ID}}/delete"
+            style="display: inline"
+        >
+            <button type="submit">Delete</button>
+        </form>
+        <form
+            method="POST"
+            action="/bookmarks/{{.Entry.ID}}/check"
+            style="display: inline"
+        >
+            <button type="submit">Check Now</button>
+        </form>
+        {{if .Status}}
+        <p>Status: {{.Status}} — Last checked: {{.LastChecked}}</p>
+        {{else}}
+        <p>Not checked yet.</p>
+        {{end}}
+    </div>
+</article>
+<a href="/">Back to dashboard</a>
+{{end}}

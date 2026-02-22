@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/nemouu/cairn/internal/bookmarks"
 	"github.com/nemouu/cairn/internal/database"
 	"github.com/nemouu/cairn/internal/entries"
 	"github.com/nemouu/cairn/internal/notes"
@@ -59,6 +60,7 @@ func main() {
 
 	notes.RegisterRoutes(mux, pool)
 	todos.RegisterRoutes(mux, pool)
+	bookmarks.RegisterRoutes(mux, pool)
 
 	log.Println("listening on :8080")
 	log.Fatal(http.ListenAndServe(":8080", mux))

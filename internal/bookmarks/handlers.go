@@ -1,6 +1,7 @@
 package bookmarks
 
 import (
+	"fmt"
 	"html/template"
 	"log"
 	"net/http"
@@ -71,6 +72,7 @@ func handleCreate(pool *pgxpool.Pool) http.HandlerFunc {
 
 		id, err := Create(r.Context(), pool, title, url)
 		if err != nil {
+			log.Println("bookmark create error:", err)
 			http.Error(w, "database error", http.StatusInternalServerError)
 			return
 		}
@@ -95,10 +97,19 @@ func handleView(pool *pgxpool.Pool) http.HandlerFunc {
 			return
 		}
 
+		var statusText string
+		var lastChecked string
+		if bookmark.LastStatus != nil {
+			statusText = fmt.Sprintf("%d", *bookmark.LastStatus)
+			lastChecked = bookmark.LastCheckedAt.Format("2 Jan 2006, 15:04")
+		}
+
 		data := map[string]any{
-			"Title":    entry.Title,
-			"Entry":    entry,
-			"Bookmark": bookmark,
+			"Title":       entry.Title,
+			"Entry":       entry,
+			"Bookmark":    bookmark,
+			"Status":      statusText,
+			"LastChecked": lastChecked,
 		}
 		if err := tmpl.ExecuteTemplate(w, "layout.html", data); err != nil {
 			log.Println("template render error:", err)

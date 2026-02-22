@@ -1,0 +1,30 @@
+{{define "content"}}
+<h1>{{if .IsEdit}}Edit Bookmark{{else}}New Bookmark{{end}}</h1>
+<form
+    method="POST"
+    action="{{if .IsEdit}}/bookmarks/{{.Entry.ID}}{{else}}/bookmarks{{end}}"
+>
+    <div>
+        <label for="title">Title</label>
+        <input
+            type="text"
+            id="title"
+            name="title"
+            value="{{if .IsEdit}}{{.Entry.Title}}{{end}}"
+            required
+        />
+    </div>
+    <div>
+        <label for="url">Url</label>
+        <input
+            type="url"
+            id="url"
+            name="url"
+            value="{{if .IsEdit}}{{.Bookmark.URL}}{{end}}"
+            required
+        />
+    </div>
+    <button type="submit">{{if .IsEdit}}Save{{else}}Create{{end}}</button>
+</form>
+<a href="/">Back to dashboard</a>
+{{end}}
