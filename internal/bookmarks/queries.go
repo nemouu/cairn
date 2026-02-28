@@ -26,16 +26,14 @@ func Create(ctx context.Context, pool *pgxpool.Pool, title, url string) (string,
 	var id string
 	err = tx.QueryRow(ctx,
 		`INSERT INTO entries (entry_type, title) VALUES ('bookmark', $1) RETURNING id`,
-		title,
-	).Scan(&id)
+		title).Scan(&id)
 	if err != nil {
 		return "", err
 	}
 
 	_, err = tx.Exec(ctx,
 		`INSERT INTO bookmarks (entry_id, url) VALUES ($1, $2)`,
-		id, url,
-	)
+		id, url)
 	if err != nil {
 		return "", err
 	}
@@ -50,11 +48,10 @@ func GetByID(ctx context.Context, pool *pgxpool.Pool, id string) (entries.Entry,
 	err := pool.QueryRow(ctx,
 		`SELECT e.id, e.entry_type, e.title, e.created_at, e.updated_at,
             b.url, b.last_status, b.last_checked_at, b.content_hash
-     FROM entries e
-     JOIN bookmarks b ON b.entry_id = e.id
-     WHERE e.id = $1`,
-		id,
-	).Scan(&e.ID, &e.EntryType, &e.Title, &e.CreatedAt, &e.UpdatedAt,
+         FROM entries e
+         JOIN bookmarks b ON b.entry_id = e.id
+         WHERE e.id = $1`,
+		id).Scan(&e.ID, &e.EntryType, &e.Title, &e.CreatedAt, &e.UpdatedAt,
 		&b.URL, &b.LastStatus, &b.LastCheckedAt, &b.ContentHash)
 
 	b.EntryID = e.ID
@@ -100,7 +97,6 @@ func UpdateCheckResult(ctx context.Context, pool *pgxpool.Pool, id string, statu
 		`UPDATE bookmarks
          SET last_status = $1, last_checked_at = now(), content_hash = $2
          WHERE entry_id = $3`,
-		status, contentHash, id,
-	)
+		status, contentHash, id)
 	return err
 }
