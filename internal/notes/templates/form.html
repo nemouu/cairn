@@ -15,6 +15,16 @@
         />
     </div>
     <div>
+        <label for="tags">Tags</label>
+        <input
+            type="text"
+            id="tags"
+            name="tags"
+            value="{{if .IsEdit}}{{range $i, $t := .Tags}}{{if $i}}, {{end}}{{$t.Name}}{{end}}{{end}}"
+            placeholder="comma separated, e.g. work, thesis"
+        />
+    </div>
+    <div>
         <label for="body">Body</label>
         <textarea id="body" name="body" rows="10">
 {{if .IsEdit}}{{.Note.Body}}{{end}}</textarea
