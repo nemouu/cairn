@@ -38,8 +38,14 @@ func handleForm(pool *pgxpool.Pool, isEdit bool) http.HandlerFunc {
 				http.Error(w, "not found", http.StatusNotFound)
 				return
 			}
+			tags, err := entries.GetTags(r.Context(), pool, id)
+			if err != nil {
+				http.Error(w, "database error", http.StatusInternalServerError)
+				return
+			}
 			data["Title"] = "Edit – " + entry.Title
 			data["Entry"] = entry
+			data["Tags"] = tags
 		}
 
 		tmpl, err := template.ParseFiles("templates/layout.html", "internal/todos/templates/form.html")
