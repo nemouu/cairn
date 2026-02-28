@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/nemouu/cairn/internal/entries"
 )
 
 func RegisterRoutes(mux *http.ServeMux, pool *pgxpool.Pool) {
@@ -69,6 +70,13 @@ func handleCreate(pool *pgxpool.Pool) http.HandlerFunc {
 			return
 		}
 
+		tagStr := r.FormValue("tags")
+		tagNames := strings.Split(tagStr, ",")
+		if err := entries.SetTags(r.Context(), pool, id, tagNames); err != nil {
+			http.Error(w, "database error", http.StatusInternalServerError)
+			return
+		}
+
 		http.Redirect(w, r, "/notes/"+id, http.StatusSeeOther)
 	}
 }
@@ -89,11 +97,19 @@ func handleView(pool *pgxpool.Pool) http.HandlerFunc {
 			return
 		}
 
+		tags, err := entries.GetTags(r.Context(), pool, id)
+		if err != nil {
+			http.Error(w, "database error", http.StatusInternalServerError)
+			return
+		}
+
 		data := map[string]any{
 			"Title": entry.Title,
 			"Entry": entry,
 			"Note":  note,
+			"Tags":  tags,
 		}
+
 		if err := tmpl.ExecuteTemplate(w, "layout.html", data); err != nil {
 			log.Println("template render error:", err)
 		}
@@ -118,6 +134,13 @@ func handleUpdate(pool *pgxpool.Pool) http.HandlerFunc {
 		}
 
 		if err := Update(r.Context(), pool, id, title, body); err != nil {
+			http.Error(w, "database error", http.StatusInternalServerError)
+			return
+		}
+
+		tagStr := r.FormValue("tags")
+		tagNames := strings.Split(tagStr, ",")
+		if err := entries.SetTags(r.Context(), pool, id, tagNames); err != nil {
 			http.Error(w, "database error", http.StatusInternalServerError)
 			return
 		}
