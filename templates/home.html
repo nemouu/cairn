@@ -5,6 +5,9 @@
     <span class="badge">{{.EntryType}}</span>
     <a href="/{{.EntryType}}s/{{.ID}}">{{.Title}}</a>
     <time>{{.UpdatedAt.Format "2 Jan 2006"}}</time>
+    {{$tags := index $.EntryTags .ID}} {{range $tags}}
+    <a href="/tags/{{.Name}}">{{.Name}}</a>
+    {{end}}
 </div>
 {{end}} {{else}}
 <p>No entries yet. Click + to create one.</p>

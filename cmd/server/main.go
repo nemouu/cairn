@@ -43,6 +43,16 @@ func main() {
 			return
 		}
 
+		var ids []string
+		for _, e := range entryList {
+			ids = append(ids, e.ID)
+		}
+		entryTags, err := entries.GetTagsForEntries(r.Context(), pool, ids)
+		if err != nil {
+			http.Error(w, "database error", http.StatusInternalServerError)
+			return
+		}
+
 		tmpl, err := template.ParseFiles("templates/layout.html", "templates/home.html")
 		if err != nil {
 			http.Error(w, "template error", http.StatusInternalServerError)
@@ -50,9 +60,11 @@ func main() {
 		}
 
 		data := map[string]any{
-			"Title":   "Dashboard",
-			"Entries": entryList,
+			"Title":     "Dashboard",
+			"Entries":   entryList,
+			"EntryTags": entryTags,
 		}
+
 		if err := tmpl.ExecuteTemplate(w, "layout.html", data); err != nil {
 			log.Println("template render error:", err)
 		}
@@ -62,14 +74,22 @@ func main() {
 	mux.HandleFunc("GET /tags/{name}", func(w http.ResponseWriter, r *http.Request) {
 		tagName := r.PathValue("name")
 
-		// call entries.ListByTag
 		entriesByTagsList, err := entries.ListByTag(r.Context(), pool, tagName)
 		if err != nil {
 			http.Error(w, "database error", http.StatusInternalServerError)
 			return
 		}
 
-		// render home.html with the filtered entries
+		var ids []string
+		for _, e := range entriesByTagsList {
+			ids = append(ids, e.ID)
+		}
+		entryTags, err := entries.GetTagsForEntries(r.Context(), pool, ids)
+		if err != nil {
+			http.Error(w, "database error", http.StatusInternalServerError)
+			return
+		}
+
 		tmpl, err := template.ParseFiles("templates/layout.html", "templates/home.html")
 		if err != nil {
 			http.Error(w, "template error", http.StatusInternalServerError)
@@ -77,8 +97,9 @@ func main() {
 		}
 
 		data := map[string]any{
-			"Title":   "Tag: " + tagName,
-			"Entries": entriesByTagsList,
+			"Title":     "Tag: " + tagName,
+			"Entries":   entriesByTagsList,
+			"EntryTags": entryTags,
 		}
 
 		if err := tmpl.ExecuteTemplate(w, "layout.html", data); err != nil {
