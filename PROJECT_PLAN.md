@@ -370,14 +370,14 @@ This is the simplest type and will establish the pattern for the others.
 
 #### 10. Tagging (shared across all types)
 
-- [ ] Add tag input to all creation/edit forms (comma-separated text input)
-- [ ] Write tag queries in `internal/entries/`:
+- [x] Add tag input to all creation/edit forms (comma-separated text input)
+- [x] Write tag queries in `internal/entries/`:
   - `SetTags(ctx, pool, entryID, tagNames []string) error` — upsert tags, sync `entry_tags`
   - `GetTags(ctx, pool, entryID) ([]Tag, error)`
   - `ListByTag(ctx, pool, tagName) ([]Entry, error)`
-- [ ] Add tag display to dashboard and individual entry views
-- [ ] Add `GET /tags/{name}` route — filtered dashboard showing entries with that tag
-- [ ] Tags should be clickable links to the filtered view
+- [x] Add tag display to dashboard and individual entry views
+- [x] Add `GET /tags/{name}` route — filtered dashboard showing entries with that tag
+- [x] Tags should be clickable links to the filtered view
 
 **If time permits — bonus features (pick any):**
 
@@ -391,11 +391,11 @@ This is the simplest type and will establish the pattern for the others.
 
 #### 12. Dockerfile and full Docker Compose (bonus, but do this)
 
-- [ ] Write multi-stage `Dockerfile`:
+- [x] Write multi-stage `Dockerfile`:
   - Build stage: `golang:1.24`, compile to static binary
   - Run stage: `alpine:latest`, copy binary + templates + migrations
-- [ ] Add `app` service to `docker-compose.yml` with `depends_on: db`
-- [ ] Verify `docker-compose up` brings up the entire system from scratch
+- [x] Add `app` service to `docker-compose.yml` with `depends_on: db`
+- [x] Verify `docker-compose up` brings up the entire system from scratch
 - [ ] Document this in the README
 
 #### 13. README (important — do this)
@@ -408,6 +408,11 @@ This is the simplest type and will establish the pattern for the others.
   - Schema overview (the shared base table pattern)
   - Future plans (briefly list expansion ideas to show you've thought ahead)
 - [ ] Keep it concise — long READMEs don't get read
+
+#### 14. Overall smaller tasks
+
+- [ ] Add some comments to the code and improve the logging
+- [ ] Style the app more
 
 ---
 

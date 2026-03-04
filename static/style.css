@@ -1,18 +1,22 @@
-/* Reset */
-*, *::before, *::after {
+/* ========== RESET ========== */
+*,
+*::before,
+*::after {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
 }
 
+/* ========== BASE ========== */
 body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-family:
+        -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     line-height: 1.6;
     max-width: 800px;
     margin: 0 auto;
     padding: 2rem 1rem;
     color: #1a1a1a;
-    background: #fafafa;
+    background: #3a3735;
 }
 
 a {
@@ -24,7 +28,87 @@ a:hover {
     text-decoration: underline;
 }
 
-/* The [+] button dropdown */
+/* ========== LAYOUT ========== */
+/* Header with the app name and [+] button */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 0;
+    border-bottom: 1px solid #e5e5e5;
+    margin-bottom: 2rem;
+}
+
+header a {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #1a1a1a;
+    text-decoration: none;
+}
+
+/* The [+] button */
+.new-entry {
+    position: relative;
+}
+
+.new-entry button {
+    font-size: 1.5rem;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    border: 2px solid #2563eb;
+    background: white;
+    color: #2563eb;
+    cursor: pointer;
+}
+
+.new-entry button:hover {
+    background: #2563eb;
+    color: white;
+}
+
+/* Type selector dropdown */
+#type-menu {
+    position: absolute;
+    right: 0;
+    top: 100%;
+    background: white;
+    border: 1px solid #e5e5e5;
+    border-radius: 0.5rem;
+    padding: 0.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    min-width: 150px;
+}
+
+#type-menu a {
+    display: block;
+    padding: 0.5rem;
+    color: #1a1a1a;
+    text-decoration: none;
+    border-radius: 0.25rem;
+}
+
+#type-menu a:hover {
+    background: #f5f5f5;
+}
+
+/* ========== COMPONENTS ========== */
+/* Dashboard entries */
+/*.entry { ... } */
+
+/* Badges */
+/*.badge { ... } */
+/*.badge-note { ... } */
+
+/* Forms */
+/*form div { ... } */
+/*label { ... } */
+/*input[type="text"] { ... } */
+
+/* Tags */
+/*.tags { ... } */
+
+/* ========== UTILITIES ========== */
 .hidden {
     display: none;
 }
