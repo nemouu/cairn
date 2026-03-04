@@ -1,6 +1,6 @@
 # Cairn
 
-Cairn is a self-hosted personal knowledge hub where different entry types have different behaviors like plain notes for freeform writing, todo lists with checkable items, and bookmarks that monitor themselves for link rot. Built as an introduction to Go web development and PostgreSQL, coming from a background in embedded systems and mobile development.
+Cairn is a self-hosted personal knowledge hub where different entry types have different behaviors like plain notes for freeform writing, todo lists with checkable items, and bookmarks that monitor themselves for link rot. Built as an introduction to Go web development and PostgreSQL.
 
 ## Run
 
@@ -19,7 +19,7 @@ go run ./cmd/server
 
 Open [localhost:8080](http://localhost:8080).
 
-Or run everything in Docker (coming soon):
+Or run everything in Docker:
 
 ```
 docker-compose up
