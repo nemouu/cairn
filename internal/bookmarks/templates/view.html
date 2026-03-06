@@ -27,9 +27,11 @@
             <button type="submit">Check Now</button>
         </form>
         {{if .Status}}
-        <p>Status: {{.Status}} — Last checked: {{.LastChecked}}</p>
+        <div class="status status-ok">
+            Status: {{.Status}} — Last checked: {{.LastChecked}}
+        </div>
         {{else}}
-        <p>Not checked yet.</p>
+        <div class="status status-unchecked">Not checked yet.</div>
         {{end}}
     </div>
 </article>
