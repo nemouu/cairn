@@ -1,7 +1,6 @@
 package bookmarks
 
 import (
-	"fmt"
 	"html/template"
 	"log"
 	"net/http"
@@ -30,7 +29,7 @@ func handleForm(pool *pgxpool.Pool, isEdit bool) http.HandlerFunc {
 
 		if isEdit {
 			id := r.PathValue("id")
-			entry, bookmark, err := GetByID(r.Context(), pool, id)
+			entry, items, err := GetByID(r.Context(), pool, id)
 			if err != nil {
 				http.Error(w, "not found", http.StatusNotFound)
 				return
@@ -42,7 +41,7 @@ func handleForm(pool *pgxpool.Pool, isEdit bool) http.HandlerFunc {
 			}
 			data["Title"] = "Edit – " + entry.Title
 			data["Entry"] = entry
-			data["Bookmark"] = bookmark
+			data["BookmarkItems"] = items
 			data["Tags"] = tags
 		}
 
@@ -65,19 +64,33 @@ func handleCreate(pool *pgxpool.Pool) http.HandlerFunc {
 		}
 
 		title := strings.TrimSpace(r.FormValue("title"))
-		url := r.FormValue("url")
-
 		if title == "" {
 			http.Error(w, "title is required", http.StatusBadRequest)
 			return
 		}
 
-		if url == "" {
-			http.Error(w, "url is required", http.StatusBadRequest)
+		// Get all URL fields (urls[] from form)
+		urls := r.Form["urls[]"]
+		if len(urls) == 0 {
+			http.Error(w, "at least one URL is required", http.StatusBadRequest)
 			return
 		}
 
-		id, err := Create(r.Context(), pool, title, url)
+		// Filter out empty URLs
+		var validURLs []string
+		for _, url := range urls {
+			url = strings.TrimSpace(url)
+			if url != "" {
+				validURLs = append(validURLs, url)
+			}
+		}
+
+		if len(validURLs) == 0 {
+			http.Error(w, "at least one URL is required", http.StatusBadRequest)
+			return
+		}
+
+		id, err := Create(r.Context(), pool, title, validURLs)
 		if err != nil {
 			log.Println("bookmark create error:", err)
 			http.Error(w, "database error", http.StatusInternalServerError)
@@ -99,9 +112,15 @@ func handleView(pool *pgxpool.Pool) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id := r.PathValue("id")
 
-		entry, bookmark, err := GetByID(r.Context(), pool, id)
+		entry, items, err := GetByID(r.Context(), pool, id)
 		if err != nil {
 			http.Error(w, "not found", http.StatusNotFound)
+			return
+		}
+
+		tags, err := entries.GetTags(r.Context(), pool, id)
+		if err != nil {
+			http.Error(w, "database error", http.StatusInternalServerError)
 			return
 		}
 
@@ -111,26 +130,11 @@ func handleView(pool *pgxpool.Pool) http.HandlerFunc {
 			return
 		}
 
-		var statusText string
-		var lastChecked string
-		if bookmark.LastStatus != nil {
-			statusText = fmt.Sprintf("%d", *bookmark.LastStatus)
-			lastChecked = bookmark.LastCheckedAt.Format("2 Jan 2006, 15:04")
-		}
-
-		tags, err := entries.GetTags(r.Context(), pool, id)
-		if err != nil {
-			http.Error(w, "database error", http.StatusInternalServerError)
-			return
-		}
-
 		data := map[string]any{
-			"Title":       entry.Title,
-			"Entry":       entry,
-			"Bookmark":    bookmark,
-			"Status":      statusText,
-			"LastChecked": lastChecked,
-			"Tags":        tags,
+			"Title":         entry.Title,
+			"Entry":         entry,
+			"BookmarkItems": items,
+			"Tags":          tags,
 		}
 
 		if err := tmpl.ExecuteTemplate(w, "layout.html", data); err != nil {
@@ -149,19 +153,29 @@ func handleUpdate(pool *pgxpool.Pool) http.HandlerFunc {
 		}
 
 		title := strings.TrimSpace(r.FormValue("title"))
-		url := r.FormValue("url")
-
 		if title == "" {
 			http.Error(w, "title is required", http.StatusBadRequest)
 			return
 		}
 
-		if url == "" {
-			http.Error(w, "url is required", http.StatusBadRequest)
+		// Get all URL fields
+		urls := r.Form["urls[]"]
+
+		// Filter out empty URLs
+		var validURLs []string
+		for _, url := range urls {
+			url = strings.TrimSpace(url)
+			if url != "" {
+				validURLs = append(validURLs, url)
+			}
+		}
+
+		if len(validURLs) == 0 {
+			http.Error(w, "at least one URL is required", http.StatusBadRequest)
 			return
 		}
 
-		if err := Update(r.Context(), pool, id, title, url); err != nil {
+		if err := Update(r.Context(), pool, id, title, validURLs); err != nil {
 			http.Error(w, "database error", http.StatusInternalServerError)
 			return
 		}

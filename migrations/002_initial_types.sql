@@ -1,15 +1,21 @@
 CREATE TABLE notes (
-      entry_id UUID PRIMARY KEY REFERENCES entries(id) ON DELETE CASCADE,
-      body     TEXT NOT NULL DEFAULT ''
-  );
+    entry_id UUID PRIMARY KEY REFERENCES entries(id) ON DELETE CASCADE,
+    body     TEXT NOT NULL DEFAULT ''
+);
 
-CREATE TABLE bookmarks (
-    entry_id        UUID PRIMARY KEY REFERENCES entries(id) ON DELETE CASCADE,
+CREATE TABLE bookmark_items (
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    entry_id        UUID NOT NULL REFERENCES entries(id) ON DELETE CASCADE,
     url             TEXT NOT NULL,
+    title           TEXT,
     last_status     INTEGER,
     last_checked_at TIMESTAMPTZ,
-    content_hash    TEXT
+    content_hash    TEXT,
+    position        INTEGER NOT NULL,
+    created_at      TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+CREATE INDEX idx_bookmark_items_entry ON bookmark_items (entry_id, position);
 
 CREATE TABLE todo_items (
     id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -19,5 +25,5 @@ CREATE TABLE todo_items (
     position   INTEGER NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
-  
+
 CREATE INDEX idx_todo_items_entry ON todo_items (entry_id, position);

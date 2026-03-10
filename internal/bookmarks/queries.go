@@ -8,15 +8,19 @@ import (
 	"github.com/nemouu/cairn/internal/entries"
 )
 
-type Bookmark struct {
+type BookmarkItem struct {
+	ID            string
 	EntryID       string
 	URL           string
+	Title         *string
 	LastStatus    *int
 	LastCheckedAt *time.Time
 	ContentHash   *string
+	Position      int
+	CreatedAt     time.Time
 }
 
-func Create(ctx context.Context, pool *pgxpool.Pool, title, url string) (string, error) {
+func Create(ctx context.Context, pool *pgxpool.Pool, title string, urls []string) (string, error) {
 	tx, err := pool.Begin(ctx)
 	if err != nil {
 		return "", err
@@ -31,34 +35,60 @@ func Create(ctx context.Context, pool *pgxpool.Pool, title, url string) (string,
 		return "", err
 	}
 
-	_, err = tx.Exec(ctx,
-		`INSERT INTO bookmarks (entry_id, url) VALUES ($1, $2)`,
-		id, url)
-	if err != nil {
-		return "", err
+	// Insert each URL as a bookmark item
+	for i, url := range urls {
+		if url == "" {
+			continue
+		}
+		_, err = tx.Exec(ctx,
+			`INSERT INTO bookmark_items (entry_id, url, position) VALUES ($1, $2, $3)`,
+			id, url, i)
+		if err != nil {
+			return "", err
+		}
 	}
 
 	return id, tx.Commit(ctx)
 }
 
-func GetByID(ctx context.Context, pool *pgxpool.Pool, id string) (entries.Entry, Bookmark, error) {
+func GetByID(ctx context.Context, pool *pgxpool.Pool, id string) (entries.Entry, []BookmarkItem, error) {
 	var e entries.Entry
-	var b Bookmark
 
 	err := pool.QueryRow(ctx,
-		`SELECT e.id, e.entry_type, e.title, e.created_at, e.updated_at,
-            b.url, b.last_status, b.last_checked_at, b.content_hash
-         FROM entries e
-         JOIN bookmarks b ON b.entry_id = e.id
-         WHERE e.id = $1`,
-		id).Scan(&e.ID, &e.EntryType, &e.Title, &e.CreatedAt, &e.UpdatedAt,
-		&b.URL, &b.LastStatus, &b.LastCheckedAt, &b.ContentHash)
+		`SELECT id, entry_type, title, created_at, updated_at
+         FROM entries WHERE id = $1`,
+		id).Scan(&e.ID, &e.EntryType, &e.Title, &e.CreatedAt, &e.UpdatedAt)
+	if err != nil {
+		return e, nil, err
+	}
 
-	b.EntryID = e.ID
-	return e, b, err
+	rows, err := pool.Query(ctx,
+		`SELECT id, entry_id, url, title, last_status, last_checked_at, content_hash, position, created_at
+         FROM bookmark_items
+         WHERE entry_id = $1
+         ORDER BY position`,
+		id)
+	if err != nil {
+		return e, nil, err
+	}
+	defer rows.Close()
+
+	var items []BookmarkItem
+	for rows.Next() {
+		var item BookmarkItem
+		err := rows.Scan(&item.ID, &item.EntryID, &item.URL, &item.Title,
+			&item.LastStatus, &item.LastCheckedAt, &item.ContentHash,
+			&item.Position, &item.CreatedAt)
+		if err != nil {
+			return e, nil, err
+		}
+		items = append(items, item)
+	}
+
+	return e, items, rows.Err()
 }
 
-func Update(ctx context.Context, pool *pgxpool.Pool, id, title, url string) error {
+func Update(ctx context.Context, pool *pgxpool.Pool, id, title string, urls []string) error {
 	tx, err := pool.Begin(ctx)
 	if err != nil {
 		return err
@@ -73,12 +103,26 @@ func Update(ctx context.Context, pool *pgxpool.Pool, id, title, url string) erro
 		return err
 	}
 
+	// Delete existing bookmark items
 	_, err = tx.Exec(ctx,
-		`UPDATE bookmarks SET url = $1 WHERE entry_id = $2`,
-		url, id,
+		`DELETE FROM bookmark_items WHERE entry_id = $1`,
+		id,
 	)
 	if err != nil {
 		return err
+	}
+
+	// Insert new bookmark items
+	for i, url := range urls {
+		if url == "" {
+			continue
+		}
+		_, err = tx.Exec(ctx,
+			`INSERT INTO bookmark_items (entry_id, url, position) VALUES ($1, $2, $3)`,
+			id, url, i)
+		if err != nil {
+			return err
+		}
 	}
 
 	return tx.Commit(ctx)
@@ -92,11 +136,11 @@ func Delete(ctx context.Context, pool *pgxpool.Pool, id string) error {
 	return err
 }
 
-func UpdateCheckResult(ctx context.Context, pool *pgxpool.Pool, id string, status int, contentHash *string) error {
+func UpdateCheckResult(ctx context.Context, pool *pgxpool.Pool, itemID string, status int, contentHash *string) error {
 	_, err := pool.Exec(ctx,
-		`UPDATE bookmarks
+		`UPDATE bookmark_items
          SET last_status = $1, last_checked_at = now(), content_hash = $2
-         WHERE entry_id = $3`,
-		status, contentHash, id)
+         WHERE id = $3`,
+		status, contentHash, itemID)
 	return err
 }

@@ -11,16 +11,30 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
+// Check all bookmark items for a given entry
 func Check(ctx context.Context, pool *pgxpool.Pool, entryID string) error {
-	var url string
-	err := pool.QueryRow(ctx,
-		`SELECT url FROM bookmarks WHERE entry_id = $1`,
+	rows, err := pool.Query(ctx,
+		`SELECT id, url FROM bookmark_items WHERE entry_id = $1`,
 		entryID,
-	).Scan(&url)
+	)
 	if err != nil {
 		return err
 	}
+	defer rows.Close()
 
+	for rows.Next() {
+		var itemID, url string
+		if err := rows.Scan(&itemID, &url); err != nil {
+			continue
+		}
+
+		go checkItem(ctx, pool, itemID, url)
+	}
+
+	return rows.Err()
+}
+
+func checkItem(ctx context.Context, pool *pgxpool.Pool, itemID, url string) {
 	client := &http.Client{Timeout: 10 * time.Second}
 	resp, err := client.Get(url)
 
@@ -37,5 +51,5 @@ func Check(ctx context.Context, pool *pgxpool.Pool, entryID string) error {
 		contentHash = &hashStr
 	}
 
-	return UpdateCheckResult(ctx, pool, entryID, status, contentHash)
+	UpdateCheckResult(ctx, pool, itemID, status, contentHash)
 }
