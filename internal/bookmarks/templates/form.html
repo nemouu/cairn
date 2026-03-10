@@ -14,16 +14,7 @@
             required
         />
     </div>
-    <div>
-        <label for="url">Url</label>
-        <input
-            type="url"
-            id="url"
-            name="url"
-            value="{{if .IsEdit}}{{.Bookmark.URL}}{{end}}"
-            required
-        />
-    </div>
+
     <div>
         <label for="tags">Tags</label>
         <input
@@ -34,7 +25,15 @@
             placeholder="comma separated, e.g. work, thesis"
         />
     </div>
+
     <button type="submit">{{if .IsEdit}}Save{{else}}Create{{end}}</button>
 </form>
+
+{{if .IsEdit}}
+<p>Add URLs on the bookmark view page after saving.</p>
+{{else}}
+<p>After creating, you'll be able to add URLs to this bookmark.</p>
+{{end}}
+
 <a href="/">Back to dashboard</a>
 {{end}}

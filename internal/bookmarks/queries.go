@@ -13,7 +13,7 @@ type BookmarkItem struct {
 	EntryID       string
 	URL           string
 	Title         *string
-	LastStatus    *int
+	LastStatus    int
 	LastCheckedAt *time.Time
 	ContentHash   *string
 	Position      int
@@ -35,7 +35,7 @@ func Create(ctx context.Context, pool *pgxpool.Pool, title string, urls []string
 		return "", err
 	}
 
-	// Insert each URL as a bookmark item
+	// Insert each URL as a bookmark item (will be empty on initial create)
 	for i, url := range urls {
 		if url == "" {
 			continue
@@ -88,44 +88,12 @@ func GetByID(ctx context.Context, pool *pgxpool.Pool, id string) (entries.Entry,
 	return e, items, rows.Err()
 }
 
-func Update(ctx context.Context, pool *pgxpool.Pool, id, title string, urls []string) error {
-	tx, err := pool.Begin(ctx)
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback(ctx)
-
-	_, err = tx.Exec(ctx,
+func UpdateTitle(ctx context.Context, pool *pgxpool.Pool, id, title string) error {
+	_, err := pool.Exec(ctx,
 		`UPDATE entries SET title = $1, updated_at = now() WHERE id = $2`,
 		title, id,
 	)
-	if err != nil {
-		return err
-	}
-
-	// Delete existing bookmark items
-	_, err = tx.Exec(ctx,
-		`DELETE FROM bookmark_items WHERE entry_id = $1`,
-		id,
-	)
-	if err != nil {
-		return err
-	}
-
-	// Insert new bookmark items
-	for i, url := range urls {
-		if url == "" {
-			continue
-		}
-		_, err = tx.Exec(ctx,
-			`INSERT INTO bookmark_items (entry_id, url, position) VALUES ($1, $2, $3)`,
-			id, url, i)
-		if err != nil {
-			return err
-		}
-	}
-
-	return tx.Commit(ctx)
+	return err
 }
 
 func Delete(ctx context.Context, pool *pgxpool.Pool, id string) error {
@@ -142,5 +110,31 @@ func UpdateCheckResult(ctx context.Context, pool *pgxpool.Pool, itemID string, s
          SET last_status = $1, last_checked_at = now(), content_hash = $2
          WHERE id = $3`,
 		status, contentHash, itemID)
+	return err
+}
+
+func AddItem(ctx context.Context, pool *pgxpool.Pool, entryID, url string) error {
+	// Get current max position
+	var maxPos int
+	err := pool.QueryRow(ctx,
+		`SELECT COALESCE(MAX(position), -1) FROM bookmark_items WHERE entry_id = $1`,
+		entryID,
+	).Scan(&maxPos)
+	if err != nil {
+		return err
+	}
+
+	_, err = pool.Exec(ctx,
+		`INSERT INTO bookmark_items (entry_id, url, position) VALUES ($1, $2, $3)`,
+		entryID, url, maxPos+1,
+	)
+	return err
+}
+
+func DeleteItem(ctx context.Context, pool *pgxpool.Pool, itemID string) error {
+	_, err := pool.Exec(ctx,
+		`DELETE FROM bookmark_items WHERE id = $1`,
+		itemID,
+	)
 	return err
 }

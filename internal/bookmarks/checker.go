@@ -22,16 +22,34 @@ func Check(ctx context.Context, pool *pgxpool.Pool, entryID string) error {
 	}
 	defer rows.Close()
 
-	for rows.Next() {
-		var itemID, url string
-		if err := rows.Scan(&itemID, &url); err != nil {
-			continue
-		}
-
-		go checkItem(ctx, pool, itemID, url)
+	type item struct {
+		id  string
+		url string
 	}
 
-	return rows.Err()
+	var items []item
+	for rows.Next() {
+		var i item
+		if err := rows.Scan(&i.id, &i.url); err != nil {
+			continue
+		}
+		items = append(items, i)
+	}
+
+	if err := rows.Err(); err != nil {
+		return err
+	}
+
+	// Launch checks in background - don't wait
+	// Use a separate context so checks continue even if HTTP request is cancelled
+	go func() {
+		checkCtx := context.Background()
+		for _, i := range items {
+			checkItem(checkCtx, pool, i.id, i.url)
+		}
+	}()
+
+	return nil
 }
 
 func checkItem(ctx context.Context, pool *pgxpool.Pool, itemID, url string) {

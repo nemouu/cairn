@@ -18,6 +18,10 @@ func RegisterRoutes(mux *http.ServeMux, pool *pgxpool.Pool) {
 	mux.HandleFunc("POST /bookmarks/{id}", handleUpdate(pool))
 	mux.HandleFunc("POST /bookmarks/{id}/delete", handleDelete(pool))
 	mux.HandleFunc("POST /bookmarks/{id}/check", handleCheck(pool))
+
+	// New routes for managing individual bookmark items
+	mux.HandleFunc("POST /bookmarks/{id}/items", handleAddItem(pool))
+	mux.HandleFunc("POST /bookmarks/{entryID}/items/{itemID}/delete", handleDeleteItem(pool))
 }
 
 func handleForm(pool *pgxpool.Pool, isEdit bool) http.HandlerFunc {
@@ -29,7 +33,7 @@ func handleForm(pool *pgxpool.Pool, isEdit bool) http.HandlerFunc {
 
 		if isEdit {
 			id := r.PathValue("id")
-			entry, items, err := GetByID(r.Context(), pool, id)
+			entry, _, err := GetByID(r.Context(), pool, id)
 			if err != nil {
 				http.Error(w, "not found", http.StatusNotFound)
 				return
@@ -41,7 +45,6 @@ func handleForm(pool *pgxpool.Pool, isEdit bool) http.HandlerFunc {
 			}
 			data["Title"] = "Edit – " + entry.Title
 			data["Entry"] = entry
-			data["BookmarkItems"] = items
 			data["Tags"] = tags
 		}
 
@@ -69,28 +72,8 @@ func handleCreate(pool *pgxpool.Pool) http.HandlerFunc {
 			return
 		}
 
-		// Get all URL fields (urls[] from form)
-		urls := r.Form["urls[]"]
-		if len(urls) == 0 {
-			http.Error(w, "at least one URL is required", http.StatusBadRequest)
-			return
-		}
-
-		// Filter out empty URLs
-		var validURLs []string
-		for _, url := range urls {
-			url = strings.TrimSpace(url)
-			if url != "" {
-				validURLs = append(validURLs, url)
-			}
-		}
-
-		if len(validURLs) == 0 {
-			http.Error(w, "at least one URL is required", http.StatusBadRequest)
-			return
-		}
-
-		id, err := Create(r.Context(), pool, title, validURLs)
+		// Create bookmark entry with no URLs initially (like creating a todo)
+		id, err := Create(r.Context(), pool, title, []string{})
 		if err != nil {
 			log.Println("bookmark create error:", err)
 			http.Error(w, "database error", http.StatusInternalServerError)
@@ -104,6 +87,7 @@ func handleCreate(pool *pgxpool.Pool) http.HandlerFunc {
 			return
 		}
 
+		// Redirect to view page where user can add URLs
 		http.Redirect(w, r, "/bookmarks/"+id, http.StatusSeeOther)
 	}
 }
@@ -158,24 +142,8 @@ func handleUpdate(pool *pgxpool.Pool) http.HandlerFunc {
 			return
 		}
 
-		// Get all URL fields
-		urls := r.Form["urls[]"]
-
-		// Filter out empty URLs
-		var validURLs []string
-		for _, url := range urls {
-			url = strings.TrimSpace(url)
-			if url != "" {
-				validURLs = append(validURLs, url)
-			}
-		}
-
-		if len(validURLs) == 0 {
-			http.Error(w, "at least one URL is required", http.StatusBadRequest)
-			return
-		}
-
-		if err := Update(r.Context(), pool, id, title, validURLs); err != nil {
+		// Only update title (URLs managed separately via add/delete item)
+		if err := UpdateTitle(r.Context(), pool, id, title); err != nil {
 			http.Error(w, "database error", http.StatusInternalServerError)
 			return
 		}
@@ -212,5 +180,44 @@ func handleCheck(pool *pgxpool.Pool) http.HandlerFunc {
 			return
 		}
 		http.Redirect(w, r, "/bookmarks/"+id, http.StatusSeeOther)
+	}
+}
+
+func handleAddItem(pool *pgxpool.Pool) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		entryID := r.PathValue("id")
+
+		if err := r.ParseForm(); err != nil {
+			http.Error(w, "bad request", http.StatusBadRequest)
+			return
+		}
+
+		url := strings.TrimSpace(r.FormValue("url"))
+		if url == "" {
+			http.Error(w, "URL is required", http.StatusBadRequest)
+			return
+		}
+
+		if err := AddItem(r.Context(), pool, entryID, url); err != nil {
+			log.Println("add bookmark item error:", err)
+			http.Error(w, "database error", http.StatusInternalServerError)
+			return
+		}
+
+		http.Redirect(w, r, "/bookmarks/"+entryID, http.StatusSeeOther)
+	}
+}
+
+func handleDeleteItem(pool *pgxpool.Pool) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		entryID := r.PathValue("entryID")
+		itemID := r.PathValue("itemID")
+
+		if err := DeleteItem(r.Context(), pool, itemID); err != nil {
+			http.Error(w, "database error", http.StatusInternalServerError)
+			return
+		}
+
+		http.Redirect(w, r, "/bookmarks/"+entryID, http.StatusSeeOther)
 	}
 }

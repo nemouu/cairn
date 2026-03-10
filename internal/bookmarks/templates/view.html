@@ -2,6 +2,7 @@
 <article>
     <h1>{{.Entry.Title}}</h1>
     <time>{{.Entry.UpdatedAt.Format "2 Jan 2006, 15:04"}}</time>
+
     {{if .Tags}}
     <div class="tags">
         {{range .Tags}}
@@ -9,7 +10,54 @@
         {{end}}
     </div>
     {{end}}
-    <a href="{{.Bookmark.URL}}" target="_blank">{{.Bookmark.URL}}</a>
+
+    <div class="bookmark-list">
+        <h2>Links</h2>
+        {{if .BookmarkItems}} {{range .BookmarkItems}}
+        <div class="bookmark-item">
+            <a href="{{.URL}}" target="_blank">{{.URL}}</a>
+
+            {{if .LastCheckedAt}}
+            <span
+                class="status-badge status-{{if and .LastStatus (ge .LastStatus 200) (lt .LastStatus 300)}}ok{{else}}error{{end}}"
+            >
+                {{if .LastStatus}}{{.LastStatus}}{{else}}Failed{{end}}
+            </span>
+            <span class="status-time">
+                {{.LastCheckedAt.Format "2 Jan 15:04"}}
+            </span>
+            {{else}}
+            <span class="status-badge status-unchecked">Not checked</span>
+            {{end}}
+
+            <form
+                method="POST"
+                action="/bookmarks/{{$.Entry.ID}}/items/{{.ID}}/delete"
+                style="display: inline"
+            >
+                <button type="submit">Delete</button>
+            </form>
+        </div>
+        {{end}} {{else}}
+        <p>No URLs yet. Add one below.</p>
+        {{end}}
+
+        <!-- Add new URL form -->
+        <form
+            method="POST"
+            action="/bookmarks/{{.Entry.ID}}/items"
+            class="add-item-form"
+        >
+            <input
+                type="url"
+                name="url"
+                placeholder="https://example.com"
+                required
+            />
+            <button type="submit">Add URL</button>
+        </form>
+    </div>
+
     <div class="actions">
         <a href="/bookmarks/{{.Entry.ID}}/edit">Edit</a>
         <form
@@ -24,16 +72,10 @@
             action="/bookmarks/{{.Entry.ID}}/check"
             style="display: inline"
         >
-            <button type="submit">Check Now</button>
+            <button type="submit">Check All Links</button>
         </form>
-        {{if .Status}}
-        <div class="status status-ok">
-            Status: {{.Status}} — Last checked: {{.LastChecked}}
-        </div>
-        {{else}}
-        <div class="status status-unchecked">Not checked yet.</div>
-        {{end}}
     </div>
 </article>
+
 <a href="/">Back to dashboard</a>
 {{end}}
