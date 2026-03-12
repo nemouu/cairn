@@ -18,16 +18,14 @@
             <a href="{{.URL}}" target="_blank">{{.URL}}</a>
 
             {{if .LastCheckedAt}}
-            <span
-                class="status-badge status-{{if and .LastStatus (ge .LastStatus 200) (lt .LastStatus 300)}}ok{{else}}error{{end}}"
-            >
+            <span class="status-badge">
                 {{if .LastStatus}}{{.LastStatus}}{{else}}Failed{{end}}
             </span>
             <span class="status-time">
                 {{.LastCheckedAt.Format "2 Jan 15:04"}}
             </span>
             {{else}}
-            <span class="status-badge status-unchecked">Not checked</span>
+            <span class="status-badge">Not checked</span>
             {{end}}
 
             <form

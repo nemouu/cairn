@@ -1,153 +1,7 @@
-/* ========== RESET ========== */
-*,
-*::before,
-*::after {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
+/* ============================================
+   COMPONENTS
+   ============================================ */
 
-/* ========== VARIABLES ========== */
-:root {
-    /* Brand */
-    --color-primary: #2563eb;
-
-    /* Neutrals */
-    --gray-50: #fafafa;
-    --gray-100: #f5f5f5;
-    --gray-200: #e5e5e5;
-    --gray-400: #888;
-    --gray-900: #1a1a1a;
-
-    /* Semantic colors */
-    --color-text: var(--gray-900);
-    --color-text-muted: var(--gray-400);
-    --color-bg: var(--gray-50);
-    --color-border: var(--gray-200);
-    --color-surface: white;
-    --color-hover: var(--gray-100);
-
-    /* Badge colors */
-    --badge-note-bg: #dbeafe;
-    --badge-note-text: #1e40af;
-    --badge-bookmark-bg: #fef3c7;
-    --badge-bookmark-text: #92400e;
-    --badge-todo-bg: #d1fae5;
-    --badge-todo-text: #065f46;
-
-    /* Tag colors */
-    --tag-bg: #f3f4f6;
-    --tag-bg-hover: #e5e7eb;
-    --tag-text: #4b5563;
-
-    /* Form colors */
-    --input-border: #d1d5db;
-    --input-focus-ring: rgba(37, 99, 235, 0.2);
-    --button-primary-hover: #1d4ed8;
-
-    /* Borders */
-    --color-border-light: #f0f0f0; /* Even lighter than --color-border */
-
-    /* Danger/Error colors */
-    --color-danger-bg: #fee2e2;
-    --color-danger-bg-hover: #fecaca;
-    --color-danger-text: #991b1b;
-
-    /* Shadows */
-    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
-
-    /* Spacing */
-    --spacing-sm: 0.5rem;
-    --spacing-md: 1rem;
-    --spacing-lg: 2rem;
-}
-
-/* ========== BASE ========== */
-body {
-    font-family:
-        -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    line-height: 1.6;
-    max-width: 800px;
-    margin: 0 auto;
-    padding: var(--spacing-lg) var(--spacing-md);
-    color: var(--color-text);
-    background: var(--color-bg);
-}
-
-a {
-    color: var(--color-primary);
-    text-decoration: none;
-}
-
-a:hover {
-    text-decoration: underline;
-}
-
-/* ========== LAYOUT ========== */
-/* Header with the app name and [+] button */
-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: var(--spacing-md) 0;
-    border-bottom: 1px solid var(--color-border);
-    margin-bottom: var(--spacing-lg);
-}
-
-header a {
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: var(--color-text);
-    text-decoration: none;
-}
-
-/* The [+] button */
-.new-entry {
-    position: relative;
-}
-
-.new-entry button {
-    font-size: 1.5rem;
-    width: 2.5rem;
-    height: 2.5rem;
-    border-radius: 50%;
-    border: 2px solid var(--color-primary);
-    background: var(--color-surface);
-    color: var(--color-primary);
-    cursor: pointer;
-}
-
-.new-entry button:hover {
-    background: var(--color-primary);
-    color: var(--color-surface);
-}
-
-/* Type selector dropdown */
-#type-menu {
-    position: absolute;
-    right: 0;
-    top: 100%;
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: 0.5rem;
-    padding: var(--spacing-sm);
-    box-shadow: var(--shadow-sm);
-    min-width: 150px;
-}
-
-#type-menu a {
-    display: block;
-    padding: var(--spacing-sm);
-    color: var(--color-text);
-    text-decoration: none;
-    border-radius: 0.25rem;
-}
-
-#type-menu a:hover {
-    background: var(--color-hover);
-}
-
-/* ========== COMPONENTS ========== */
 /* Entry grid container */
 .entry-grid {
     display: grid;
@@ -184,12 +38,11 @@ header a {
 .entry time {
     color: var(--color-text-muted);
     font-size: 0.85rem;
-    margin-top: auto; /* Pushes to bottom of card */
+    margin-top: auto;
 }
 
-/* Tags inside cards */
 .entry .tags {
-    margin-top: auto; /* If no tags, time stays at bottom */
+    margin-top: auto;
 }
 
 /* Type badges */
@@ -282,42 +135,78 @@ button[type="submit"]:hover {
     background: var(--tag-bg-hover);
 }
 
-/* Actions and Articles */
+/* Actions section */
 .actions {
     display: flex;
     gap: var(--spacing-md);
     align-items: center;
-    margin-top: 1.5rem;
+    margin-top: var(--spacing-lg);
     padding-top: var(--spacing-md);
     border-top: 1px solid var(--color-border-light);
 }
 
+.actions a {
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: var(--color-primary);
+    color: var(--color-surface);
+    border-radius: 0.375rem;
+    font-size: 0.9rem;
+    text-decoration: none;
+}
+
+.actions a:hover {
+    background: var(--button-primary-hover);
+    text-decoration: none;
+}
+
 .actions button {
-    padding: 0.35rem 0.75rem;
+    padding: var(--spacing-sm) var(--spacing-md);
     background: var(--color-danger-bg);
     color: var(--color-danger-text);
     border: none;
     border-radius: 0.375rem;
     cursor: pointer;
-    font-size: 0.85rem;
+    font-size: 0.9rem;
 }
 
 .actions button:hover {
     background: var(--color-danger-bg-hover);
 }
 
-article h1 {
-    margin-bottom: 0.25rem;
+.actions form {
+    margin: 0;
 }
+
+/* Entry detail pages (article view) */
+article {
+    background: var(--color-surface);
+    border: 2px solid var(--color-border);
+    border-radius: 0.75rem;
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-lg);
+}
+
+article h1 {
+    font-size: 1.75rem;
+    margin-bottom: var(--spacing-sm);
+    line-height: 1.3;
+}
+
 article time {
-    color: var(--color-text-muted);
-    font-size: 0.85rem;
     display: block;
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
     margin-bottom: var(--spacing-md);
 }
+
+article .tags {
+    margin-bottom: var(--spacing-lg);
+}
+
 article .body {
-    line-height: 1.8;
-    margin: var(--spacing-md) 0;
+    line-height: 1.7;
+    margin: var(--spacing-lg) 0;
+    white-space: pre-wrap;
 }
 
 /* Todo Items */
@@ -341,7 +230,35 @@ article .body {
     flex: 1;
 }
 
-/* Bookmark Status */
+/* Bookmark list */
+.bookmark-list {
+    margin: var(--spacing-lg) 0;
+}
+
+.bookmark-list h2 {
+    font-size: 1.2rem;
+    margin-bottom: var(--spacing-md);
+    font-weight: 600;
+}
+
+.bookmark-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm) 0;
+    border-bottom: 1px solid var(--color-border-light);
+}
+
+.bookmark-item:last-child {
+    border-bottom: none;
+}
+
+.bookmark-item a {
+    flex: 1;
+    word-break: break-all;
+}
+
+/* Status badges */
 .status {
     margin: var(--spacing-md) 0;
     padding: 0.75rem;
@@ -364,7 +281,42 @@ article .body {
     color: var(--tag-text);
 }
 
-/* ========== UTILITIES ========== */
-.hidden {
-    display: none;
+.status-badge {
+    font-size: 0.75rem;
+    padding: 0.2rem var(--spacing-sm);
+    border-radius: 0.25rem;
+    font-weight: 600;
+}
+
+.status-badge.status-ok {
+    background: var(--badge-todo-bg);
+    color: var(--badge-todo-text);
+}
+
+.status-badge.status-error {
+    background: var(--color-danger-bg);
+    color: var(--color-danger-text);
+}
+
+.status-badge.status-unchecked {
+    background: var(--tag-bg);
+    color: var(--tag-text);
+}
+
+.status-time {
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+}
+
+/* Add bookmark item form */
+.add-item-form {
+    display: flex;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-md);
+    padding-top: var(--spacing-md);
+    border-top: 1px solid var(--color-border-light);
+}
+
+.add-item-form input {
+    flex: 1;
 }

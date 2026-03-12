@@ -1,0 +1,56 @@
+/* ============================================
+   CSS VARIABLES
+   ============================================ */
+:root {
+    /* Brand */
+    --color-primary: #2563eb;
+
+    /* Neutrals */
+    --gray-50: #fafafa;
+    --gray-100: #f5f5f5;
+    --gray-200: #e5e5e5;
+    --gray-400: #888;
+    --gray-900: #1a1a1a;
+
+    /* Semantic colors */
+    --color-text: var(--gray-900);
+    --color-text-muted: var(--gray-400);
+    --color-bg: var(--gray-50);
+    --color-border: var(--gray-200);
+    --color-surface: white;
+    --color-hover: var(--gray-100);
+
+    /* Badge colors */
+    --badge-note-bg: #dbeafe;
+    --badge-note-text: #1e40af;
+    --badge-bookmark-bg: #fef3c7;
+    --badge-bookmark-text: #92400e;
+    --badge-todo-bg: #d1fae5;
+    --badge-todo-text: #065f46;
+
+    /* Tag colors */
+    --tag-bg: #f3f4f6;
+    --tag-bg-hover: #e5e7eb;
+    --tag-text: #4b5563;
+
+    /* Form colors */
+    --input-border: #d1d5db;
+    --input-focus-ring: rgba(37, 99, 235, 0.2);
+    --button-primary-hover: #1d4ed8;
+
+    /* Borders */
+    --color-border-light: #f0f0f0;
+
+    /* Danger/Error colors */
+    --color-danger-bg: #fee2e2;
+    --color-danger-bg-hover: #fecaca;
+    --color-danger-text: #991b1b;
+
+    /* Shadows */
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+    /* Spacing */
+    --spacing-sm: 0.5rem;
+    --spacing-md: 1rem;
+    --spacing-lg: 2rem;
+}

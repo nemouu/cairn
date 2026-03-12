@@ -12,16 +12,14 @@ import (
 
 func RegisterRoutes(mux *http.ServeMux, pool *pgxpool.Pool) {
 	mux.HandleFunc("GET /bookmarks/new", handleForm(pool, false))
-	mux.HandleFunc("POST /bookmarks", handleCreate(pool))
-	mux.HandleFunc("GET /bookmarks/{id}", handleView(pool))
 	mux.HandleFunc("GET /bookmarks/{id}/edit", handleForm(pool, true))
-	mux.HandleFunc("POST /bookmarks/{id}", handleUpdate(pool))
-	mux.HandleFunc("POST /bookmarks/{id}/delete", handleDelete(pool))
-	mux.HandleFunc("POST /bookmarks/{id}/check", handleCheck(pool))
-
-	// New routes for managing individual bookmark items
-	mux.HandleFunc("POST /bookmarks/{id}/items", handleAddItem(pool))
+	mux.HandleFunc("GET /bookmarks/{id}", handleView(pool))
 	mux.HandleFunc("POST /bookmarks/{entryID}/items/{itemID}/delete", handleDeleteItem(pool))
+	mux.HandleFunc("POST /bookmarks/{id}/items", handleAddItem(pool))
+	mux.HandleFunc("POST /bookmarks/{id}/check", handleCheck(pool))
+	mux.HandleFunc("POST /bookmarks/{id}/delete", handleDelete(pool))
+	mux.HandleFunc("POST /bookmarks/{id}", handleUpdate(pool))
+	mux.HandleFunc("POST /bookmarks", handleCreate(pool))
 }
 
 func handleForm(pool *pgxpool.Pool, isEdit bool) http.HandlerFunc {

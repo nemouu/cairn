@@ -13,7 +13,7 @@ type BookmarkItem struct {
 	EntryID       string
 	URL           string
 	Title         *string
-	LastStatus    int
+	LastStatus    *int
 	LastCheckedAt *time.Time
 	ContentHash   *string
 	Position      int
