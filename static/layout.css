@@ -43,14 +43,16 @@ header a {
 /* Type selector dropdown */
 #type-menu {
     position: absolute;
-    right: 0;
-    top: 100%;
+    left: 100%;
+    top: 0;
+    margin-left: 0.5rem;
     background: var(--color-surface);
     border: 1px solid var(--color-border);
     border-radius: 0.5rem;
     padding: var(--spacing-sm);
     box-shadow: var(--shadow-sm);
     min-width: 150px;
+    z-index: 100;
 }
 
 #type-menu a {
