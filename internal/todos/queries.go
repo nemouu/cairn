@@ -26,8 +26,7 @@ func Create(ctx context.Context, pool *pgxpool.Pool, title string) (string, erro
 
 	var id string
 	err = tx.QueryRow(ctx,
-		`INSERT INTO entries (entry_type, title) VALUES ('todo', $1) RETURNING id`,
-		title,
+		`INSERT INTO entries (entry_type, title) VALUES ('todo', $1) RETURNING id`, title,
 	).Scan(&id)
 	if err != nil {
 		return "", err
@@ -35,8 +34,7 @@ func Create(ctx context.Context, pool *pgxpool.Pool, title string) (string, erro
 
 	_, err = tx.Exec(ctx,
 		`UPDATE entries SET search_vector = to_tsvector('english', $1)
-		 WHERE id = $2`,
-		title, id,
+		 WHERE id = $2`, title, id,
 	)
 	if err != nil {
 		return "", err
@@ -52,8 +50,7 @@ func GetByID(ctx context.Context, pool *pgxpool.Pool, id string) (entries.Entry,
 	err := pool.QueryRow(ctx,
 		`SELECT id, entry_type, title, created_at, updated_at
 		 FROM entries
-		 WHERE id = $1`,
-		id,
+		 WHERE id = $1`, id,
 	).Scan(&e.ID, &e.EntryType, &e.Title, &e.CreatedAt, &e.UpdatedAt)
 	if err != nil {
 		return e, nil, err
@@ -63,8 +60,8 @@ func GetByID(ctx context.Context, pool *pgxpool.Pool, id string) (entries.Entry,
 		`SELECT id, entry_id, body, is_done, position, created_at
    		 FROM todo_items
          WHERE entry_id = $1
-         ORDER BY position`,
-		id)
+         ORDER BY position`, id,
+	)
 	if err != nil {
 		return e, nil, err
 	}
@@ -90,8 +87,7 @@ func Update(ctx context.Context, pool *pgxpool.Pool, id, title string) error {
 	defer tx.Rollback(ctx)
 
 	_, err = tx.Exec(ctx,
-		`UPDATE entries SET title = $1, updated_at = now() WHERE id = $2`,
-		title, id,
+		`UPDATE entries SET title = $1, updated_at = now() WHERE id = $2`, title, id,
 	)
 	if err != nil {
 		return err
@@ -99,8 +95,7 @@ func Update(ctx context.Context, pool *pgxpool.Pool, id, title string) error {
 
 	_, err = tx.Exec(ctx,
 		`UPDATE entries SET search_vector = to_tsvector('english', $1)
-     WHERE id = $2`,
-		title, id,
+     	 WHERE id = $2`, title, id,
 	)
 	if err != nil {
 		return err
@@ -109,46 +104,112 @@ func Update(ctx context.Context, pool *pgxpool.Pool, id, title string) error {
 }
 
 func AddItem(ctx context.Context, pool *pgxpool.Pool, entryID string, body string) error {
-	_, err := pool.Exec(ctx,
+	tx, err := pool.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx)
+
+	_, err = tx.Exec(ctx,
 		`INSERT INTO todo_items (entry_id, body, position)
          VALUES ($1, $2, COALESCE((SELECT MAX(position)
          FROM todo_items
-         WHERE entry_id = $1), 0) + 1)`,
-		entryID, body,
+         WHERE entry_id = $1), 0) + 1)`, entryID, body,
 	)
-	return err
+	if err != nil {
+		return err
+	}
+
+	_, err = tx.Exec(ctx,
+		`UPDATE entries SET search_vector = to_tsvector('english',
+	        (SELECT e.title || ' ' || COALESCE(
+	            string_agg(ti.body, ' '), '')
+	         FROM entries e
+	         LEFT JOIN todo_items ti ON ti.entry_id = e.id
+	         WHERE e.id = $1
+	         GROUP BY e.id, e.title))
+	     WHERE id = $1`, entryID,
+	)
+	if err != nil {
+		return err
+	}
+	return tx.Commit(ctx)
 }
 
 func ToggleItem(ctx context.Context, pool *pgxpool.Pool, itemID string) error {
 	_, err := pool.Exec(ctx,
 		`UPDATE todo_items
 		 SET is_done = NOT is_done
-		 WHERE id = $1`,
-		itemID,
+		 WHERE id = $1`, itemID,
 	)
 	return err
 }
 
-func UpdateItem(ctx context.Context, pool *pgxpool.Pool, itemID string, body string) error {
-	_, err := pool.Exec(ctx,
-		`UPDATE todo_items SET body = $1 WHERE id = $2`,
-		itemID, body,
+func UpdateItem(ctx context.Context, pool *pgxpool.Pool, entryID, itemID, body string) error {
+	tx, err := pool.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx)
+
+	_, err = tx.Exec(ctx,
+		`UPDATE todo_items SET body = $1 WHERE id = $2`, body, itemID,
 	)
-	return err
+	if err != nil {
+		return err
+	}
+
+	_, err = tx.Exec(ctx,
+		`UPDATE entries SET search_vector = to_tsvector('english',
+			(SELECT e.title || ' ' || COALESCE(
+				string_agg(ti.body, ' '), '')
+			 FROM entries e
+			 LEFT JOIN todo_items ti ON ti.entry_id = e.id
+			 WHERE e.id = $1
+			 GROUP BY e.id, e.title))
+		 WHERE id = $1`, entryID,
+	)
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit(ctx)
 }
 
-func DeleteItem(ctx context.Context, pool *pgxpool.Pool, itemID string) error {
-	_, err := pool.Exec(ctx,
-		`DELETE FROM todo_items WHERE id = $1`,
-		itemID,
+func DeleteItem(ctx context.Context, pool *pgxpool.Pool, entryID, itemID string) error {
+	tx, err := pool.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx)
+
+	_, err = tx.Exec(ctx,
+		`DELETE FROM todo_items WHERE id = $1`, itemID,
 	)
-	return err
+	if err != nil {
+		return err
+	}
+
+	_, err = tx.Exec(ctx,
+		`UPDATE entries SET search_vector = to_tsvector('english',
+			(SELECT e.title || ' ' || COALESCE(
+				string_agg(ti.body, ' '), '')
+			 FROM entries e
+			 LEFT JOIN todo_items ti ON ti.entry_id = e.id
+			 WHERE e.id = $1
+			 GROUP BY e.id, e.title))
+		 WHERE id = $1`, entryID,
+	)
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit(ctx)
 }
 
 func Delete(ctx context.Context, pool *pgxpool.Pool, id string) error {
 	_, err := pool.Exec(ctx,
-		`DELETE FROM entries WHERE id = $1`,
-		id,
+		`DELETE FROM entries WHERE id = $1`, id,
 	)
 	return err
 }

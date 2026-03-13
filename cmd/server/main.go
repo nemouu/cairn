@@ -37,7 +37,18 @@ func main() {
 
 	// Dashboard
 	mux.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
-		entryList, err := entries.ListAll(r.Context(), pool)
+		query := r.URL.Query().Get("q") // Get search query from URL
+
+		var entryList []entries.Entry
+		var err error
+
+		// Search mode or normal mode
+		if query != "" {
+			entryList, err = entries.Search(r.Context(), pool, query)
+		} else {
+			entryList, err = entries.ListAll(r.Context(), pool)
+		}
+
 		if err != nil {
 			http.Error(w, "database error", http.StatusInternalServerError)
 			return
@@ -47,6 +58,7 @@ func main() {
 		for _, e := range entryList {
 			ids = append(ids, e.ID)
 		}
+
 		entryTags, err := entries.GetTagsForEntries(r.Context(), pool, ids)
 		if err != nil {
 			http.Error(w, "database error", http.StatusInternalServerError)
@@ -63,6 +75,7 @@ func main() {
 			"Title":     "Dashboard",
 			"Entries":   entryList,
 			"EntryTags": entryTags,
+			"Query":     query,
 		}
 
 		if err := tmpl.ExecuteTemplate(w, "layout.html", data); err != nil {

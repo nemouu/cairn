@@ -211,7 +211,7 @@ func handleDeleteItem(pool *pgxpool.Pool) http.HandlerFunc {
 		entryID := r.PathValue("entryID")
 		itemID := r.PathValue("itemID")
 
-		if err := DeleteItem(r.Context(), pool, itemID); err != nil {
+		if err := DeleteItem(r.Context(), pool, entryID, itemID); err != nil {
 			http.Error(w, "database error", http.StatusInternalServerError)
 			return
 		}

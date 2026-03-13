@@ -100,7 +100,7 @@ textarea:focus {
     box-shadow: 0 0 0 2px var(--input-focus-ring);
 }
 
-button[type="submit"] {
+form:not(.search-form) button[type="submit"] {
     padding: var(--spacing-sm) var(--spacing-md);
     background: var(--color-primary);
     color: var(--color-surface);
@@ -319,4 +319,90 @@ article .body {
 
 .add-item-form input {
     flex: 1;
+}
+
+/* Page header with search */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-lg);
+    gap: var(--spacing-md);
+}
+
+.page-header h1 {
+    margin: 0;
+    font-size: 1.75rem;
+}
+
+/* Search form */
+.search-form {
+    position: relative;
+    width: 280px;
+}
+
+.search-form input {
+    width: 100%;
+    padding: var(--spacing-sm) 3rem var(--spacing-sm) var(--spacing-sm);
+    border: 1px solid var(--color-border);
+    border-radius: 1.5rem;
+    font-size: 0.9rem;
+    background: var(--color-surface);
+}
+
+.search-form input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px var(--input-focus-ring);
+}
+
+.search-button {
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%;
+    padding: 0 var(--spacing-md); /* Changed from var(--spacing-sm) */
+    background: transparent !important;
+    border: none;
+    border-radius: 0 1.5rem 1.5rem 0 !important;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.search-button:hover {
+    color: var(--color-primary);
+    background: var(--color-hover);
+    border-radius: 0 1.5rem 1.5rem 0;
+}
+
+.search-button svg {
+    display: block;
+}
+
+/* Clear button for deleting input with mouse, positioned left of the search button */
+.clear-button {
+    position: absolute;
+    right: 2.5rem;
+    top: 0;
+    height: 100%;
+    padding: 0 var(--spacing-sm);
+    background: transparent !important;
+    border: none !important;
+    border-radius: 0 !important;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.clear-button:hover {
+    color: var(--color-danger-text);
+}
+
+.clear-button svg {
+    display: block;
 }

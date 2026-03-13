@@ -204,6 +204,7 @@ func handleAddItem(pool *pgxpool.Pool) http.HandlerFunc {
 func handleUpdateItem(pool *pgxpool.Pool) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id := r.PathValue("id")
+		entryID := r.PathValue("entryID")
 		itemID := r.PathValue("itemID")
 
 		if err := r.ParseForm(); err != nil {
@@ -218,7 +219,7 @@ func handleUpdateItem(pool *pgxpool.Pool) http.HandlerFunc {
 			return
 		}
 
-		if err := UpdateItem(r.Context(), pool, itemID, body); err != nil {
+		if err := UpdateItem(r.Context(), pool, entryID, itemID, body); err != nil {
 			log.Println("update item error:", err)
 			http.Error(w, "database error", http.StatusInternalServerError)
 			return
@@ -247,9 +248,10 @@ func handleToggleItem(pool *pgxpool.Pool) http.HandlerFunc {
 func handleDeleteItem(pool *pgxpool.Pool) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id := r.PathValue("id")
+		entryID := r.PathValue("entryID")
 		itemID := r.PathValue("itemID")
 
-		if err := DeleteItem(r.Context(), pool, itemID); err != nil {
+		if err := DeleteItem(r.Context(), pool, entryID, itemID); err != nil {
 			http.Error(w, "database error", http.StatusInternalServerError)
 			return
 		}

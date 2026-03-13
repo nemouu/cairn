@@ -21,16 +21,14 @@ func Create(ctx context.Context, pool *pgxpool.Pool, title, body string) (string
 
 	var id string
 	err = tx.QueryRow(ctx,
-		`INSERT INTO entries (entry_type, title) VALUES ('note', $1) RETURNING id`,
-		title,
+		`INSERT INTO entries (entry_type, title) VALUES ('note', $1) RETURNING id`, title,
 	).Scan(&id)
 	if err != nil {
 		return "", err
 	}
 
 	_, err = tx.Exec(ctx,
-		`INSERT INTO notes (entry_id, body) VALUES ($1, $2)`,
-		id, body,
+		`INSERT INTO notes (entry_id, body) VALUES ($1, $2)`, id, body,
 	)
 	if err != nil {
 		return "", err
@@ -38,8 +36,7 @@ func Create(ctx context.Context, pool *pgxpool.Pool, title, body string) (string
 
 	_, err = tx.Exec(ctx,
 		`UPDATE entries SET search_vector = to_tsvector('english', $1 || ' ' || $2)
-     WHERE id = $3`,
-		title, body, id,
+     	 WHERE id = $3`, title, body, id,
 	)
 	if err != nil {
 		return "", err
@@ -56,8 +53,7 @@ func GetByID(ctx context.Context, pool *pgxpool.Pool, id string) (entries.Entry,
 		`SELECT e.id, e.entry_type, e.title, e.created_at, e.updated_at, n.body
          FROM entries e
          JOIN notes n ON n.entry_id = e.id
-         WHERE e.id = $1`,
-		id,
+         WHERE e.id = $1`, id,
 	).Scan(&e.ID, &e.EntryType, &e.Title, &e.CreatedAt, &e.UpdatedAt, &n.Body)
 
 	n.EntryID = e.ID
@@ -72,16 +68,14 @@ func Update(ctx context.Context, pool *pgxpool.Pool, id, title, body string) err
 	defer tx.Rollback(ctx)
 
 	_, err = tx.Exec(ctx,
-		`UPDATE entries SET title = $1, updated_at = now() WHERE id = $2`,
-		title, id,
+		`UPDATE entries SET title = $1, updated_at = now() WHERE id = $2`, title, id,
 	)
 	if err != nil {
 		return err
 	}
 
 	_, err = tx.Exec(ctx,
-		`UPDATE notes SET body = $1 WHERE entry_id = $2`,
-		body, id,
+		`UPDATE notes SET body = $1 WHERE entry_id = $2`, body, id,
 	)
 	if err != nil {
 		return err
@@ -89,8 +83,7 @@ func Update(ctx context.Context, pool *pgxpool.Pool, id, title, body string) err
 
 	_, err = tx.Exec(ctx,
 		`UPDATE entries SET search_vector = to_tsvector('english', $1 || ' ' || $2)
-     WHERE id = $3`,
-		title, body, id,
+     	 WHERE id = $3`, title, body, id,
 	)
 	if err != nil {
 		return err
@@ -101,8 +94,7 @@ func Update(ctx context.Context, pool *pgxpool.Pool, id, title, body string) err
 
 func Delete(ctx context.Context, pool *pgxpool.Pool, id string) error {
 	_, err := pool.Exec(ctx,
-		`DELETE FROM entries WHERE id = $1`,
-		id,
+		`DELETE FROM entries WHERE id = $1`, id,
 	)
 	return err
 }

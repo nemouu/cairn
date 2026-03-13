@@ -104,12 +104,16 @@ func UpdateTitle(ctx context.Context, pool *pgxpool.Pool, id, title string) erro
 
 	_, err = tx.Exec(ctx,
 		`UPDATE entries SET search_vector = to_tsvector('english',
-	        (SELECT e.title || ' ' || string_agg(bi.url, ' ')
+	        (SELECT e.title || ' ' || COALESCE(
+	            string_agg(
+	                regexp_replace(regexp_replace(bi.url, '^https?://', ''), '[^a-zA-Z0-9]+', ' ', 'g'),
+	                ' '
+	            ), '')
 	         FROM entries e
 	         LEFT JOIN bookmark_items bi ON bi.entry_id = e.id
 	         WHERE e.id = $1
 	         GROUP BY e.id, e.title))
-         WHERE id = $1`, id,
+	     WHERE id = $1`, id,
 	)
 	if err != nil {
 		return err
@@ -158,12 +162,16 @@ func AddItem(ctx context.Context, pool *pgxpool.Pool, entryID, url string) error
 
 	_, err = tx.Exec(ctx,
 		`UPDATE entries SET search_vector = to_tsvector('english',
-			(SELECT e.title || ' ' || string_agg(bi.url, ' ')
-			 FROM entries e
-			 LEFT JOIN bookmark_items bi ON bi.entry_id = e.id
-			 WHERE e.id = $1
-			 GROUP BY e.id, e.title))
-		 WHERE id = $1`, entryID,
+	        (SELECT e.title || ' ' || COALESCE(
+	            string_agg(
+	                regexp_replace(regexp_replace(bi.url, '^https?://', ''), '[^a-zA-Z0-9]+', ' ', 'g'),
+	                ' '
+	            ), '')
+	         FROM entries e
+	         LEFT JOIN bookmark_items bi ON bi.entry_id = e.id
+	         WHERE e.id = $1
+	         GROUP BY e.id, e.title))
+	     WHERE id = $1`, entryID,
 	)
 	if err != nil {
 		return err
@@ -172,21 +180,12 @@ func AddItem(ctx context.Context, pool *pgxpool.Pool, entryID, url string) error
 	return tx.Commit(ctx)
 }
 
-func DeleteItem(ctx context.Context, pool *pgxpool.Pool, itemID string) error {
+func DeleteItem(ctx context.Context, pool *pgxpool.Pool, entryID, itemID string) error {
 	tx, err := pool.Begin(ctx)
 	if err != nil {
 		return err
 	}
 	defer tx.Rollback(ctx)
-
-	// Get the entry_id before deleting
-	var entryID string
-	err = tx.QueryRow(ctx,
-		`SELECT entry_id FROM bookmark_items WHERE id = $1`, itemID,
-	).Scan(&entryID)
-	if err != nil {
-		return err
-	}
 
 	_, err = tx.Exec(ctx,
 		`DELETE FROM bookmark_items WHERE id = $1`, itemID,
@@ -197,7 +196,11 @@ func DeleteItem(ctx context.Context, pool *pgxpool.Pool, itemID string) error {
 
 	_, err = tx.Exec(ctx,
 		`UPDATE entries SET search_vector = to_tsvector('english',
-			(SELECT e.title || ' ' || COALESCE(string_agg(bi.url, ' '), '')
+			(SELECT e.title || ' ' || COALESCE(
+				string_agg(
+					regexp_replace(regexp_replace(bi.url, '^https?://', ''), '[^a-zA-Z0-9]+', ' ', 'g'),
+					' '
+				), '')
 			 FROM entries e
 			 LEFT JOIN bookmark_items bi ON bi.entry_id = e.id
 			 WHERE e.id = $1
