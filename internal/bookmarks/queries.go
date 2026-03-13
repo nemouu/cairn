@@ -29,8 +29,8 @@ func Create(ctx context.Context, pool *pgxpool.Pool, title string, urls []string
 
 	var id string
 	err = tx.QueryRow(ctx,
-		`INSERT INTO entries (entry_type, title) VALUES ('bookmark', $1) RETURNING id`,
-		title).Scan(&id)
+		`INSERT INTO entries (entry_type, title) VALUES ('bookmark', $1) RETURNING id`, title,
+	).Scan(&id)
 	if err != nil {
 		return "", err
 	}
@@ -41,8 +41,8 @@ func Create(ctx context.Context, pool *pgxpool.Pool, title string, urls []string
 			continue
 		}
 		_, err = tx.Exec(ctx,
-			`INSERT INTO bookmark_items (entry_id, url, position) VALUES ($1, $2, $3)`,
-			id, url, i)
+			`INSERT INTO bookmark_items (entry_id, url, position) VALUES ($1, $2, $3)`, id, url, i,
+		)
 		if err != nil {
 			return "", err
 		}
@@ -56,8 +56,8 @@ func GetByID(ctx context.Context, pool *pgxpool.Pool, id string) (entries.Entry,
 
 	err := pool.QueryRow(ctx,
 		`SELECT id, entry_type, title, created_at, updated_at
-         FROM entries WHERE id = $1`,
-		id).Scan(&e.ID, &e.EntryType, &e.Title, &e.CreatedAt, &e.UpdatedAt)
+         FROM entries WHERE id = $1`, id,
+	).Scan(&e.ID, &e.EntryType, &e.Title, &e.CreatedAt, &e.UpdatedAt)
 	if err != nil {
 		return e, nil, err
 	}
@@ -66,8 +66,8 @@ func GetByID(ctx context.Context, pool *pgxpool.Pool, id string) (entries.Entry,
 		`SELECT id, entry_id, url, title, last_status, last_checked_at, content_hash, position, created_at
          FROM bookmark_items
          WHERE entry_id = $1
-         ORDER BY position`,
-		id)
+         ORDER BY position`, id,
+	)
 	if err != nil {
 		return e, nil, err
 	}
@@ -89,17 +89,37 @@ func GetByID(ctx context.Context, pool *pgxpool.Pool, id string) (entries.Entry,
 }
 
 func UpdateTitle(ctx context.Context, pool *pgxpool.Pool, id, title string) error {
-	_, err := pool.Exec(ctx,
-		`UPDATE entries SET title = $1, updated_at = now() WHERE id = $2`,
-		title, id,
+	tx, err := pool.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx)
+
+	_, err = tx.Exec(ctx,
+		`UPDATE entries SET title = $1, updated_at = now() WHERE id = $2`, title, id,
 	)
-	return err
+	if err != nil {
+		return err
+	}
+
+	_, err = tx.Exec(ctx,
+		`UPDATE entries SET search_vector = to_tsvector('english',
+	        (SELECT e.title || ' ' || string_agg(bi.url, ' ')
+	         FROM entries e
+	         LEFT JOIN bookmark_items bi ON bi.entry_id = e.id
+	         WHERE e.id = $1
+	         GROUP BY e.id, e.title))
+         WHERE id = $1`, id,
+	)
+	if err != nil {
+		return err
+	}
+	return tx.Commit(ctx)
 }
 
 func Delete(ctx context.Context, pool *pgxpool.Pool, id string) error {
 	_, err := pool.Exec(ctx,
-		`DELETE FROM entries WHERE id = $1`,
-		id,
+		`DELETE FROM entries WHERE id = $1`, id,
 	)
 	return err
 }
@@ -108,33 +128,85 @@ func UpdateCheckResult(ctx context.Context, pool *pgxpool.Pool, itemID string, s
 	_, err := pool.Exec(ctx,
 		`UPDATE bookmark_items
          SET last_status = $1, last_checked_at = now(), content_hash = $2
-         WHERE id = $3`,
-		status, contentHash, itemID)
+         WHERE id = $3`, status, contentHash, itemID,
+	)
 	return err
 }
 
 func AddItem(ctx context.Context, pool *pgxpool.Pool, entryID, url string) error {
+	tx, err := pool.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx)
+
 	// Get current max position
 	var maxPos int
-	err := pool.QueryRow(ctx,
-		`SELECT COALESCE(MAX(position), -1) FROM bookmark_items WHERE entry_id = $1`,
-		entryID,
+	err = tx.QueryRow(ctx,
+		`SELECT COALESCE(MAX(position), -1) FROM bookmark_items WHERE entry_id = $1`, entryID,
 	).Scan(&maxPos)
 	if err != nil {
 		return err
 	}
 
-	_, err = pool.Exec(ctx,
-		`INSERT INTO bookmark_items (entry_id, url, position) VALUES ($1, $2, $3)`,
-		entryID, url, maxPos+1,
+	_, err = tx.Exec(ctx,
+		`INSERT INTO bookmark_items (entry_id, url, position) VALUES ($1, $2, $3)`, entryID, url, maxPos+1,
 	)
-	return err
+	if err != nil {
+		return err
+	}
+
+	_, err = tx.Exec(ctx,
+		`UPDATE entries SET search_vector = to_tsvector('english',
+			(SELECT e.title || ' ' || string_agg(bi.url, ' ')
+			 FROM entries e
+			 LEFT JOIN bookmark_items bi ON bi.entry_id = e.id
+			 WHERE e.id = $1
+			 GROUP BY e.id, e.title))
+		 WHERE id = $1`, entryID,
+	)
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit(ctx)
 }
 
 func DeleteItem(ctx context.Context, pool *pgxpool.Pool, itemID string) error {
-	_, err := pool.Exec(ctx,
-		`DELETE FROM bookmark_items WHERE id = $1`,
-		itemID,
+	tx, err := pool.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx)
+
+	// Get the entry_id before deleting
+	var entryID string
+	err = tx.QueryRow(ctx,
+		`SELECT entry_id FROM bookmark_items WHERE id = $1`, itemID,
+	).Scan(&entryID)
+	if err != nil {
+		return err
+	}
+
+	_, err = tx.Exec(ctx,
+		`DELETE FROM bookmark_items WHERE id = $1`, itemID,
 	)
-	return err
+	if err != nil {
+		return err
+	}
+
+	_, err = tx.Exec(ctx,
+		`UPDATE entries SET search_vector = to_tsvector('english',
+			(SELECT e.title || ' ' || COALESCE(string_agg(bi.url, ' '), '')
+			 FROM entries e
+			 LEFT JOIN bookmark_items bi ON bi.entry_id = e.id
+			 WHERE e.id = $1
+			 GROUP BY e.id, e.title))
+		 WHERE id = $1`, entryID,
+	)
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit(ctx)
 }

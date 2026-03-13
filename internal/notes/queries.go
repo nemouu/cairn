@@ -36,6 +36,15 @@ func Create(ctx context.Context, pool *pgxpool.Pool, title, body string) (string
 		return "", err
 	}
 
+	_, err = tx.Exec(ctx,
+		`UPDATE entries SET search_vector = to_tsvector('english', $1 || ' ' || $2)
+     WHERE id = $3`,
+		title, body, id,
+	)
+	if err != nil {
+		return "", err
+	}
+
 	return id, tx.Commit(ctx)
 }
 
@@ -73,6 +82,15 @@ func Update(ctx context.Context, pool *pgxpool.Pool, id, title, body string) err
 	_, err = tx.Exec(ctx,
 		`UPDATE notes SET body = $1 WHERE entry_id = $2`,
 		body, id,
+	)
+	if err != nil {
+		return err
+	}
+
+	_, err = tx.Exec(ctx,
+		`UPDATE entries SET search_vector = to_tsvector('english', $1 || ' ' || $2)
+     WHERE id = $3`,
+		title, body, id,
 	)
 	if err != nil {
 		return err

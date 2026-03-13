@@ -162,3 +162,28 @@ func SetTags(ctx context.Context, pool *pgxpool.Pool, entryID string, tagNames [
 
 	return tx.Commit(ctx)
 }
+
+func Search(ctx context.Context, pool *pgxpool.Pool, query string) ([]Entry, error) {
+	rows, err := pool.Query(ctx,
+		`SELECT id, entry_type, title, created_at, updated_at
+		 FROM entries
+		 WHERE search_vector @@ plainto_tsquery('english', $1)
+		 ORDER BY ts_rank(search_vector, plainto_tsquery('english', $1)) DESC`,
+		query,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var entries []Entry
+	for rows.Next() {
+		var e Entry
+		err := rows.Scan(&e.ID, &e.EntryType, &e.Title, &e.CreatedAt, &e.UpdatedAt)
+		if err != nil {
+			return nil, err
+		}
+		entries = append(entries, e)
+	}
+	return entries, rows.Err()
+}

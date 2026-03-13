@@ -18,15 +18,31 @@ type TodoItem struct {
 }
 
 func Create(ctx context.Context, pool *pgxpool.Pool, title string) (string, error) {
+	tx, err := pool.Begin(ctx)
+	if err != nil {
+		return "", err
+	}
+	defer tx.Rollback(ctx)
+
 	var id string
-	err := pool.QueryRow(ctx,
+	err = tx.QueryRow(ctx,
 		`INSERT INTO entries (entry_type, title) VALUES ('todo', $1) RETURNING id`,
 		title,
 	).Scan(&id)
 	if err != nil {
 		return "", err
 	}
-	return id, nil
+
+	_, err = tx.Exec(ctx,
+		`UPDATE entries SET search_vector = to_tsvector('english', $1)
+		 WHERE id = $2`,
+		title, id,
+	)
+	if err != nil {
+		return "", err
+	}
+
+	return id, tx.Commit(ctx)
 }
 
 func GetByID(ctx context.Context, pool *pgxpool.Pool, id string) (entries.Entry, []TodoItem, error) {
@@ -67,11 +83,29 @@ func GetByID(ctx context.Context, pool *pgxpool.Pool, id string) (entries.Entry,
 }
 
 func Update(ctx context.Context, pool *pgxpool.Pool, id, title string) error {
-	_, err := pool.Exec(ctx,
+	tx, err := pool.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx)
+
+	_, err = tx.Exec(ctx,
 		`UPDATE entries SET title = $1, updated_at = now() WHERE id = $2`,
 		title, id,
 	)
-	return err
+	if err != nil {
+		return err
+	}
+
+	_, err = tx.Exec(ctx,
+		`UPDATE entries SET search_vector = to_tsvector('english', $1)
+     WHERE id = $2`,
+		title, id,
+	)
+	if err != nil {
+		return err
+	}
+	return tx.Commit(ctx)
 }
 
 func AddItem(ctx context.Context, pool *pgxpool.Pool, entryID string, body string) error {
