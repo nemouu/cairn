@@ -248,10 +248,9 @@ func handleToggleItem(pool *pgxpool.Pool) http.HandlerFunc {
 func handleDeleteItem(pool *pgxpool.Pool) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id := r.PathValue("id")
-		entryID := r.PathValue("entryID")
 		itemID := r.PathValue("itemID")
 
-		if err := DeleteItem(r.Context(), pool, entryID, itemID); err != nil {
+		if err := DeleteItem(r.Context(), pool, id, itemID); err != nil {
 			http.Error(w, "database error", http.StatusInternalServerError)
 			return
 		}
