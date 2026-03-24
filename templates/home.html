@@ -53,10 +53,12 @@
 <div class="entry-grid">
     {{range .Entries}}
     <div class="entry">
-        <div class="entry-header">
-            <a href="/{{.EntryType}}s/{{.ID}}">{{.Title}}</a>
-            <span class="badge badge-{{.EntryType}}">{{.EntryType}}</span>
-        </div>
+        <a href="/{{.EntryType}}s/{{.ID}}" class="entry-link">
+            <div class="entry-header">
+                <span class="entry-title">{{.Title}}</span>
+                <span class="badge badge-{{.EntryType}}">{{.EntryType}}</span>
+            </div>
+        </a>
 
         {{$tags := index $.EntryTags .ID}} {{if $tags}}
         <div class="tags">
@@ -65,7 +67,6 @@
             {{end}}
         </div>
         {{end}}
-
         <time>{{.UpdatedAt.Format "2 Jan 2006"}}</time>
     </div>
     {{end}}
