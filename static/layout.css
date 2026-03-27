@@ -1,8 +1,9 @@
 /* ============================================
    LAYOUT
+   High-level page structure: header, dropdowns, etc.
    ============================================ */
 
-/* Header with the app name and [+] button */
+/* ===== Header ===== */
 header {
     display: flex;
     justify-content: space-between;
@@ -19,9 +20,9 @@ header a {
     text-decoration: none;
 }
 
-/* The [+] button */
+/* ===== New Entry Button ===== */
 .new-entry {
-    position: relative;
+    position: relative; /* Enables absolute positioning for the dropdown */
 }
 
 .new-entry button {
@@ -40,7 +41,7 @@ header a {
     color: var(--color-surface);
 }
 
-/* Type selector dropdown */
+/* ===== Type Menu Dropdown ===== */
 #type-menu {
     position: absolute;
     left: 100%;
@@ -52,7 +53,7 @@ header a {
     padding: var(--spacing-sm);
     box-shadow: var(--shadow-sm);
     min-width: 150px;
-    z-index: 100;
+    z-index: 100; /* Ensures dropdown appears above other elements */
 }
 
 #type-menu a {
@@ -64,5 +65,5 @@ header a {
 }
 
 #type-menu a:hover {
-    background: var(--color-hover);
+    background: var(--color-hover); /* Visual feedback on hover */
 }

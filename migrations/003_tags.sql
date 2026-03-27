@@ -1,3 +1,6 @@
+-- Create tables for tagging entries.
+-- Tags are shared across all entry types and linked via the entry_tags junction table.
+
 CREATE TABLE tags (
       id   UUID PRIMARY KEY DEFAULT gen_random_uuid(),
       name TEXT NOT NULL UNIQUE

@@ -1,5 +1,6 @@
 {{define "content"}}
 <div class="page-header">
+    <!-- Page title and search form -->
     <h1>Your entries</h1>
     <form method="GET" action="/" class="search-form">
         <input
@@ -8,6 +9,7 @@
             placeholder="Search..."
             value="{{.Query}}"
         />
+        <!-- Clear search button: Shown only when a query is active -->
         {{if .Query}}
         <button
             type="button"
@@ -30,6 +32,7 @@
             </svg>
         </button>
         {{end}}
+        <!-- Search submit button: Magnifying glass icon -->
         <button type="submit" class="search-button">
             <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -49,17 +52,21 @@
     </form>
 </div>
 
+<!-- Entry grid: Displays all entries if they exist -->
 {{if .Entries}}
 <div class="entry-grid">
     {{range .Entries}}
     <div class="entry">
+        <!-- Entry link: Navigates to the specific entry view -->
         <a href="/{{.EntryType}}s/{{.ID}}" class="entry-link">
             <div class="entry-header">
                 <span class="entry-title">{{.Title}}</span>
+                <!-- Entry type badge: Visual indicator for note/bookmark/todo -->
                 <span class="badge badge-{{.EntryType}}">{{.EntryType}}</span>
             </div>
         </a>
 
+        <!-- Tags: Links to filtered views by tag -->
         {{$tags := index $.EntryTags .ID}} {{if $tags}}
         <div class="tags">
             {{range $tags}}
@@ -67,10 +74,12 @@
             {{end}}
         </div>
         {{end}}
+        <!-- Last updated timestamp -->
         <time>{{.UpdatedAt.Format "2 Jan 2006"}}</time>
     </div>
     {{end}}
 </div>
 {{else}}
+<!-- Message shown when no entries exist -->
 <p>No entries yet. Click + to create one.</p>
 {{end}} {{end}}

@@ -1,20 +1,29 @@
 <!doctype html>
 <html lang="en">
     <head>
+        <!-- Basic meta tags and page title -->
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>{{.Title}} – Cairn</title>
+        <!-- CSS stylesheets: Reset, variables, base, layout, and component-specific styles -->
         <link rel="stylesheet" href="/static/reset.css" />
         <link rel="stylesheet" href="/static/variables.css" />
         <link rel="stylesheet" href="/static/base.css" />
         <link rel="stylesheet" href="/static/layout.css" />
-        <link rel="stylesheet" href="/static/components.css" />
-        <link rel="stylesheet" href="/static/utilities.css" />
+        <!-- Component styles: forms, cards, navigation, buttons, status, tags -->
+        <link rel="stylesheet" href="/static/components/forms.css" />
+        <link rel="stylesheet" href="/static/components/cards.css" />
+        <link rel="stylesheet" href="/static/components/navigation.css" />
+        <link rel="stylesheet" href="/static/components/buttons.css" />
+        <link rel="stylesheet" href="/static/components/status.css" />
+        <link rel="stylesheet" href="/static/components/tags.css" />
     </head>
     <body>
+        <!-- Site header: Logo/link and new entry dropdown -->
         <header>
             <a href="/">Cairn</a>
             <div class="new-entry">
+                <!-- Dropdown toggle button -->
                 <button
                     onclick="
                         document
@@ -24,6 +33,7 @@
                 >
                     +
                 </button>
+                <!-- Dropdown menu: Links to create new entries -->
                 <div id="type-menu" class="hidden">
                     <a href="/notes/new">Note</a>
                     <a href="/bookmarks/new">Bookmark</a>
@@ -31,6 +41,7 @@
                 </div>
             </div>
         </header>
+        <!-- Main content area: Injected by child templates -->
         <main>{{template "content" .}}</main>
     </body>
 </html>

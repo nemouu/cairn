@@ -1,6 +1,9 @@
 /* ============================================
    CSS VARIABLES
+   Global design tokens: colors, spacing, shadows, etc.
    ============================================ */
+
+/* === Colors, Shadows and Spacing === */
 :root {
     /* Brand - Warm copper/orange */
     --color-primary: #d4a055;

@@ -1,3 +1,6 @@
+-- Create the core entries table to store all entry types (notes, bookmarks, todos).
+-- This table serves as the parent for all entry-specific tables (e.g., notes, bookmarks, todo_items).
+
 CREATE TABLE entries (
       id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
       entry_type  TEXT NOT NULL CHECK (entry_type IN ('note', 'bookmark', 'todo')),
@@ -7,5 +10,5 @@ CREATE TABLE entries (
   );
 
 CREATE INDEX idx_entries_type ON entries (entry_type);
-  
+
 CREATE INDEX idx_entries_created_at ON entries (created_at DESC);

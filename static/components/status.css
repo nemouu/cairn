@@ -1,0 +1,56 @@
+/* ============================================
+   COMPONENTS: STATUS
+   Styles for status badges and indicators.
+   ============================================ */
+
+/* ===== Status Badges ===== */
+.status {
+    margin: var(--spacing-md) 0;
+    padding: 0.75rem;
+    border-radius: 0.375rem;
+    font-size: 0.9rem;
+}
+
+.status-ok {
+    background: var(--badge-todo-bg);
+    color: var(--badge-todo-text);
+}
+
+.status-error {
+    background: var(--color-danger-bg);
+    color: var(--color-danger-text);
+}
+
+.status-unchecked {
+    background: var(--tag-bg);
+    color: var(--tag-text);
+}
+
+/* ===== Status Badge Labels ===== */
+.status-badge {
+    font-size: 0.75rem;
+    padding: 0.2rem var(--spacing-sm);
+    border-radius: 0.25rem;
+    font-weight: 600;
+}
+
+.status-badge.status-ok {
+    background: var(--badge-todo-bg);
+    color: var(--badge-todo-text);
+}
+
+.status-badge.status-error {
+    background: var(--color-danger-bg);
+    color: var(--color-danger-text);
+}
+
+.status-badge.status-unchecked {
+    background: var(--tag-bg);
+    color: var(--tag-text);
+}
+
+/* ===== Status Time ===== */
+.status-time {
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+}

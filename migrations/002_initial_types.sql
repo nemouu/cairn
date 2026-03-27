@@ -1,3 +1,6 @@
+-- Create tables for the initial entry types: notes, bookmarks, and todos.
+-- Each table stores type-specific data and references the parent entries table.
+
 CREATE TABLE notes (
     entry_id UUID PRIMARY KEY REFERENCES entries(id) ON DELETE CASCADE,
     body     TEXT NOT NULL DEFAULT ''
