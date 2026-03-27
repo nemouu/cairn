@@ -1,9 +1,13 @@
 {{define "content"}}
+<!-- Page title: Changes based on whether the form is for editing or creating a bookmark -->
 <h1>{{if .IsEdit}}Edit Bookmark{{else}}New Bookmark{{end}}</h1>
+
+<!-- Form submission: POSTs to either the edit or create endpoint based on mode -->
 <form
     method="POST"
     action="{{if .IsEdit}}/bookmarks/{{.Entry.ID}}{{else}}/bookmarks{{end}}"
 >
+    <!-- Title field: Required for all bookmarks -->
     <div>
         <label for="title">Title</label>
         <input
@@ -15,6 +19,7 @@
         />
     </div>
 
+    <!-- Tags field: Comma-separated list, pre-filled in edit mode -->
     <div>
         <label for="tags">Tags</label>
         <input
@@ -26,14 +31,17 @@
         />
     </div>
 
+    <!-- Submit button: Text changes based on mode (Create/Save) -->
     <button type="submit">{{if .IsEdit}}Save{{else}}Create{{end}}</button>
 </form>
 
+<!-- Informational note: Explains next steps after form submission -->
 {{if .IsEdit}}
 <p>Add URLs on the bookmark view page after saving.</p>
 {{else}}
 <p>After creating, you'll be able to add URLs to this bookmark.</p>
 {{end}}
 
+<!-- Link to return to the dashboard -->
 <a href="/">Back to dashboard</a>
 {{end}}

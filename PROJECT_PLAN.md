@@ -383,11 +383,11 @@ This is the simplest type and will establish the pattern for the others.
 
 #### 11. Full-text search (bonus)
 
-- [ ] Add a `search_vector TSVECTOR` column to `entries`
-- [ ] Write a trigger or application-level update that populates it from title + note body + bookmark URL
-- [ ] Add a search box to the dashboard
-- [ ] `GET /?q=searchterm` filters the entry list using `to_tsquery`
-- [ ] Add a GIN index on the search vector column
+- [x] Add a `search_vector TSVECTOR` column to `entries`
+- [x] Write a trigger or application-level update that populates it from title + note body + bookmark URL
+- [x] Add a search box to the dashboard
+- [x] `GET /?q=searchterm` filters the entry list using `to_tsquery`
+- [x] Add a GIN index on the search vector column
 
 #### 12. Dockerfile and full Docker Compose (bonus, but do this)
 
@@ -476,7 +476,6 @@ These are out of scope for the weekend but the schema and architecture support t
 - **Code snippets** — new type with language tag, server-side syntax highlighting via Chroma
 - **Recurring checklists** — todo templates that can be instantiated multiple times
 - **Cross-references UI** — leverage the `entry_links` table to connect related entries
-- **Turbo/Hotwire** — add Turbo for snappy page transitions without full reloads (directly relevant to Klingit's stack)
 - **Import/export** — browser bookmark import, markdown export
 - **Full-text search** — PostgreSQL `tsvector`/`tsquery` across all entry types
 

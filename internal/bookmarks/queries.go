@@ -8,18 +8,25 @@ import (
 	"github.com/nemouu/cairn/internal/entries"
 )
 
+// BookmarkItem represents a single URL associated with a bookmark entry in Cairn.
+// It includes metadata for health checks (status, last checked time, content hash)
+// and display purposes (title, position).
+// All fields are safe for concurrent use by multiple goroutines.
 type BookmarkItem struct {
-	ID            string
-	EntryID       string
-	URL           string
-	Title         *string
-	LastStatus    *int
-	LastCheckedAt *time.Time
-	ContentHash   *string
-	Position      int
-	CreatedAt     time.Time
+	ID            string     // Unique identifier for the bookmark item.
+	EntryID       string     // ID of the parent bookmark entry.
+	URL           string     // URL of the bookmarked resource.
+	Title         *string    // Optional title for the bookmark item.
+	LastStatus    *int       // HTTP status code from the last health check (nil if never checked).
+	LastCheckedAt *time.Time // Timestamp of the last health check (nil if never checked).
+	ContentHash   *string    // SHA-256 hash of the response body from the last check (nil if never checked or unreachable).
+	Position      int        // Position of the item in the bookmark list (used for ordering).
+	CreatedAt     time.Time  // Timestamp when the bookmark item was created.
 }
 
+// Create inserts a new bookmark entry and its associated URLs into the database.
+// It returns the ID of the created entry or an error.
+// URLs are added as bookmark items with sequential positions.
 func Create(ctx context.Context, pool *pgxpool.Pool, title string, urls []string) (string, error) {
 	tx, err := pool.Begin(ctx)
 	if err != nil {
@@ -35,7 +42,7 @@ func Create(ctx context.Context, pool *pgxpool.Pool, title string, urls []string
 		return "", err
 	}
 
-	// Insert each URL as a bookmark item (will be empty on initial create)
+	// Insert each URL as a bookmark item (skips empty URLs)
 	for i, url := range urls {
 		if url == "" {
 			continue
@@ -51,6 +58,8 @@ func Create(ctx context.Context, pool *pgxpool.Pool, title string, urls []string
 	return id, tx.Commit(ctx)
 }
 
+// GetByID retrieves a bookmark entry and its associated items by ID.
+// Returns the entry, a slice of bookmark items, or an error.
 func GetByID(ctx context.Context, pool *pgxpool.Pool, id string) (entries.Entry, []BookmarkItem, error) {
 	var e entries.Entry
 
@@ -88,6 +97,8 @@ func GetByID(ctx context.Context, pool *pgxpool.Pool, id string) (entries.Entry,
 	return e, items, rows.Err()
 }
 
+// UpdateTitle updates the title of a bookmark entry and refreshes its search vector.
+// The search vector includes the title and all associated URLs for full-text search.
 func UpdateTitle(ctx context.Context, pool *pgxpool.Pool, id, title string) error {
 	tx, err := pool.Begin(ctx)
 	if err != nil {
@@ -102,6 +113,7 @@ func UpdateTitle(ctx context.Context, pool *pgxpool.Pool, id, title string) erro
 		return err
 	}
 
+	// Update search vector to include the new title and all URLs
 	_, err = tx.Exec(ctx,
 		`UPDATE entries SET search_vector = to_tsvector('english',
 	        (SELECT e.title || ' ' || COALESCE(
@@ -121,6 +133,8 @@ func UpdateTitle(ctx context.Context, pool *pgxpool.Pool, id, title string) erro
 	return tx.Commit(ctx)
 }
 
+// Delete removes a bookmark entry and all its associated items from the database.
+// Uses CASCADE to delete related rows in bookmark_items.
 func Delete(ctx context.Context, pool *pgxpool.Pool, id string) error {
 	_, err := pool.Exec(ctx,
 		`DELETE FROM entries WHERE id = $1`, id,
@@ -128,6 +142,7 @@ func Delete(ctx context.Context, pool *pgxpool.Pool, id string) error {
 	return err
 }
 
+// UpdateCheckResult updates the health check status, timestamp, and content hash for a bookmark item.
 func UpdateCheckResult(ctx context.Context, pool *pgxpool.Pool, itemID string, status int, contentHash *string) error {
 	_, err := pool.Exec(ctx,
 		`UPDATE bookmark_items
@@ -137,6 +152,8 @@ func UpdateCheckResult(ctx context.Context, pool *pgxpool.Pool, itemID string, s
 	return err
 }
 
+// AddItem appends a new URL to a bookmark entry, placing it at the end of the list.
+// It also updates the entry's search vector to include the new URL.
 func AddItem(ctx context.Context, pool *pgxpool.Pool, entryID, url string) error {
 	tx, err := pool.Begin(ctx)
 	if err != nil {
@@ -144,7 +161,7 @@ func AddItem(ctx context.Context, pool *pgxpool.Pool, entryID, url string) error
 	}
 	defer tx.Rollback(ctx)
 
-	// Get current max position
+	// Get current max position to place the new item at the end
 	var maxPos int
 	err = tx.QueryRow(ctx,
 		`SELECT COALESCE(MAX(position), -1) FROM bookmark_items WHERE entry_id = $1`, entryID,
@@ -160,6 +177,7 @@ func AddItem(ctx context.Context, pool *pgxpool.Pool, entryID, url string) error
 		return err
 	}
 
+	// Update search vector to include the new URL
 	_, err = tx.Exec(ctx,
 		`UPDATE entries SET search_vector = to_tsvector('english',
 	        (SELECT e.title || ' ' || COALESCE(
@@ -180,6 +198,8 @@ func AddItem(ctx context.Context, pool *pgxpool.Pool, entryID, url string) error
 	return tx.Commit(ctx)
 }
 
+// DeleteItem removes a URL from a bookmark entry and refreshes the search vector.
+// The search vector is updated to reflect the remaining URLs.
 func DeleteItem(ctx context.Context, pool *pgxpool.Pool, entryID, itemID string) error {
 	tx, err := pool.Begin(ctx)
 	if err != nil {
@@ -194,6 +214,7 @@ func DeleteItem(ctx context.Context, pool *pgxpool.Pool, entryID, itemID string)
 		return err
 	}
 
+	// Update search vector to exclude the deleted URL
 	_, err = tx.Exec(ctx,
 		`UPDATE entries SET search_vector = to_tsvector('english',
 			(SELECT e.title || ' ' || COALESCE(

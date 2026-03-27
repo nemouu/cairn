@@ -1,8 +1,10 @@
 {{define "content"}}
 <article>
+    <!-- Bookmark title and last updated timestamp -->
     <h1>{{.Entry.Title}}</h1>
     <time>{{.Entry.UpdatedAt.Format "2 Jan 2006, 15:04"}}</time>
 
+    <!-- Tag list: Links to filtered views by tag -->
     {{if .Tags}}
     <div class="tags">
         {{range .Tags}}
@@ -13,10 +15,14 @@
 
     <div class="bookmark-list">
         <h2>Links</h2>
+
+        <!-- List of bookmarked URLs with status and delete buttons -->
         {{if .BookmarkItems}} {{range .BookmarkItems}}
         <div class="bookmark-item">
+            <!-- URL link: Opens in a new tab -->
             <a href="{{.URL}}" target="_blank">{{.URL}}</a>
 
+            <!-- Status badge: Shows HTTP status or "Failed"/"Not checked" -->
             {{if .LastCheckedAt}}
             <span class="status-badge">
                 {{if .LastStatus}}{{.LastStatus}}{{else}}Failed{{end}}
@@ -28,6 +34,7 @@
             <span class="status-badge">Not checked</span>
             {{end}}
 
+            <!-- Delete button for this URL -->
             <form
                 method="POST"
                 action="/bookmarks/{{$.Entry.ID}}/items/{{.ID}}/delete"
@@ -37,10 +44,11 @@
             </form>
         </div>
         {{end}} {{else}}
+        <!-- Message shown when no URLs are added yet -->
         <p>No URLs yet. Add one below.</p>
         {{end}}
 
-        <!-- Add new URL form -->
+        <!-- Form to add a new URL to this bookmark -->
         <form
             method="POST"
             action="/bookmarks/{{.Entry.ID}}/items"
@@ -56,6 +64,7 @@
         </form>
     </div>
 
+    <!-- Action buttons: Edit, Delete, and Check All Links -->
     <div class="actions">
         <a href="/bookmarks/{{.Entry.ID}}/edit">Edit</a>
         <form
@@ -75,5 +84,6 @@
     </div>
 </article>
 
+<!-- Link to return to the dashboard -->
 <a href="/">Back to dashboard</a>
 {{end}}

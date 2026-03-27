@@ -10,6 +10,8 @@ import (
 	"github.com/nemouu/cairn/internal/entries"
 )
 
+// RegisterRoutes registers all bookmark-related HTTP routes with the provided ServeMux.
+// It maps URLs to their respective handlers for CRUD operations, health checks, and item management.
 func RegisterRoutes(mux *http.ServeMux, pool *pgxpool.Pool) {
 	mux.HandleFunc("GET /bookmarks/new", handleForm(pool, false))
 	mux.HandleFunc("GET /bookmarks/{id}/edit", handleForm(pool, true))
@@ -22,6 +24,8 @@ func RegisterRoutes(mux *http.ServeMux, pool *pgxpool.Pool) {
 	mux.HandleFunc("POST /bookmarks", handleCreate(pool))
 }
 
+// handleForm renders the form template for creating or editing a bookmark.
+// If isEdit is true, it loads the existing bookmark and its tags for editing.
 func handleForm(pool *pgxpool.Pool, isEdit bool) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		data := map[string]any{
@@ -57,6 +61,8 @@ func handleForm(pool *pgxpool.Pool, isEdit bool) http.HandlerFunc {
 	}
 }
 
+// handleCreate processes the form submission for creating a new bookmark.
+// It validates the title, creates the bookmark, sets tags, and redirects to the view page.
 func handleCreate(pool *pgxpool.Pool) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if err := r.ParseForm(); err != nil {
@@ -70,7 +76,7 @@ func handleCreate(pool *pgxpool.Pool) http.HandlerFunc {
 			return
 		}
 
-		// Create bookmark entry with no URLs initially (like creating a todo)
+		// Create bookmark entry with no URLs initially
 		id, err := Create(r.Context(), pool, title, []string{})
 		if err != nil {
 			log.Println("bookmark create error:", err)
@@ -90,6 +96,7 @@ func handleCreate(pool *pgxpool.Pool) http.HandlerFunc {
 	}
 }
 
+// handleView renders the view template for a bookmark, including its items and tags.
 func handleView(pool *pgxpool.Pool) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id := r.PathValue("id")
@@ -125,6 +132,7 @@ func handleView(pool *pgxpool.Pool) http.HandlerFunc {
 	}
 }
 
+// handleUpdate processes the form submission for updating a bookmark's title and tags.
 func handleUpdate(pool *pgxpool.Pool) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id := r.PathValue("id")
@@ -157,6 +165,7 @@ func handleUpdate(pool *pgxpool.Pool) http.HandlerFunc {
 	}
 }
 
+// handleDelete removes a bookmark and redirects to the dashboard.
 func handleDelete(pool *pgxpool.Pool) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id := r.PathValue("id")
@@ -170,6 +179,7 @@ func handleDelete(pool *pgxpool.Pool) http.HandlerFunc {
 	}
 }
 
+// handleCheck triggers a health check for all URLs in a bookmark and redirects back to the view page.
 func handleCheck(pool *pgxpool.Pool) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id := r.PathValue("id")
@@ -181,6 +191,7 @@ func handleCheck(pool *pgxpool.Pool) http.HandlerFunc {
 	}
 }
 
+// handleAddItem adds a new URL to a bookmark and redirects back to the view page.
 func handleAddItem(pool *pgxpool.Pool) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		entryID := r.PathValue("id")
@@ -206,6 +217,7 @@ func handleAddItem(pool *pgxpool.Pool) http.HandlerFunc {
 	}
 }
 
+// handleDeleteItem removes a URL from a bookmark and redirects back to the view page.
 func handleDeleteItem(pool *pgxpool.Pool) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		entryID := r.PathValue("entryID")
