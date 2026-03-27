@@ -21,9 +21,12 @@
     <body>
         <!-- Site header: Logo/link and new entry dropdown -->
         <header>
-            <a href="/">Cairn</a>
+            <div class="header-content">
+                <a href="/" class="logo-link">
+                    <img src="/static/logo.png" alt="Cairn Logo" class="logo" />
+                </a>
+            </div>
             <div class="new-entry">
-                <!-- Dropdown toggle button -->
                 <button
                     onclick="
                         document
@@ -33,7 +36,6 @@
                 >
                     +
                 </button>
-                <!-- Dropdown menu: Links to create new entries -->
                 <div id="type-menu" class="hidden">
                     <a href="/notes/new">Note</a>
                     <a href="/bookmarks/new">Bookmark</a>
