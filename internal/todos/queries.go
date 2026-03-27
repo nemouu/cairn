@@ -8,15 +8,20 @@ import (
 	"github.com/nemouu/cairn/internal/entries"
 )
 
+// TodoItem represents an individual item in a todo list.
+// It includes the item's content, completion status, and position in the list.
 type TodoItem struct {
-	ID        string
-	EntryID   string
-	Body      string
-	IsDone    bool
-	Position  int
-	CreatedAt time.Time
+	ID        string    // Unique identifier for the todo item.
+	EntryID   string    // ID of the parent todo entry.
+	Body      string    // Text content of the todo item.
+	IsDone    bool      // Completion status of the item.
+	Position  int       // Position of the item in the list (used for ordering).
+	CreatedAt time.Time // Timestamp when the item was created.
 }
 
+// Create inserts a new todo entry into the database.
+// It creates the entry record and updates the search vector.
+// Returns the ID of the created entry or an error.
 func Create(ctx context.Context, pool *pgxpool.Pool, title string) (string, error) {
 	tx, err := pool.Begin(ctx)
 	if err != nil {
@@ -43,6 +48,8 @@ func Create(ctx context.Context, pool *pgxpool.Pool, title string) (string, erro
 	return id, tx.Commit(ctx)
 }
 
+// GetByID retrieves a todo entry and its associated items by ID.
+// Returns the entry metadata, a slice of todo items, or an error.
 func GetByID(ctx context.Context, pool *pgxpool.Pool, id string) (entries.Entry, []TodoItem, error) {
 	var e entries.Entry
 	var t []TodoItem
@@ -79,6 +86,9 @@ func GetByID(ctx context.Context, pool *pgxpool.Pool, id string) (entries.Entry,
 	return e, t, err
 }
 
+// Update modifies the title of an existing todo entry.
+// It updates the entry record and refreshes the search vector.
+// Returns an error if any step fails.
 func Update(ctx context.Context, pool *pgxpool.Pool, id, title string) error {
 	tx, err := pool.Begin(ctx)
 	if err != nil {
@@ -103,6 +113,9 @@ func Update(ctx context.Context, pool *pgxpool.Pool, id, title string) error {
 	return tx.Commit(ctx)
 }
 
+// AddItem appends a new item to a todo list, placing it at the end of the list.
+// It also updates the entry's search vector to include the new item.
+// Returns an error if any step fails.
 func AddItem(ctx context.Context, pool *pgxpool.Pool, entryID string, body string) error {
 	tx, err := pool.Begin(ctx)
 	if err != nil {
@@ -136,6 +149,8 @@ func AddItem(ctx context.Context, pool *pgxpool.Pool, entryID string, body strin
 	return tx.Commit(ctx)
 }
 
+// ToggleItem toggles the completion status of a todo item.
+// Returns an error if the update fails.
 func ToggleItem(ctx context.Context, pool *pgxpool.Pool, itemID string) error {
 	_, err := pool.Exec(ctx,
 		`UPDATE todo_items
@@ -145,37 +160,8 @@ func ToggleItem(ctx context.Context, pool *pgxpool.Pool, itemID string) error {
 	return err
 }
 
-func UpdateItem(ctx context.Context, pool *pgxpool.Pool, entryID, itemID, body string) error {
-	tx, err := pool.Begin(ctx)
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback(ctx)
-
-	_, err = tx.Exec(ctx,
-		`UPDATE todo_items SET body = $1 WHERE id = $2`, body, itemID,
-	)
-	if err != nil {
-		return err
-	}
-
-	_, err = tx.Exec(ctx,
-		`UPDATE entries SET search_vector = to_tsvector('english',
-			(SELECT e.title || ' ' || COALESCE(
-				string_agg(ti.body, ' '), '')
-			 FROM entries e
-			 LEFT JOIN todo_items ti ON ti.entry_id = e.id
-			 WHERE e.id = $1
-			 GROUP BY e.id, e.title))
-		 WHERE id = $1`, entryID,
-	)
-	if err != nil {
-		return err
-	}
-
-	return tx.Commit(ctx)
-}
-
+// DeleteItem removes a todo item from the list and refreshes the search vector.
+// Returns an error if any step fails.
 func DeleteItem(ctx context.Context, pool *pgxpool.Pool, entryID, itemID string) error {
 	tx, err := pool.Begin(ctx)
 	if err != nil {
@@ -207,6 +193,9 @@ func DeleteItem(ctx context.Context, pool *pgxpool.Pool, entryID, itemID string)
 	return tx.Commit(ctx)
 }
 
+// Delete removes a todo entry and all its associated items from the database.
+// Uses CASCADE to delete related rows in the todo_items table.
+// Returns an error if the deletion fails.
 func Delete(ctx context.Context, pool *pgxpool.Pool, id string) error {
 	_, err := pool.Exec(ctx,
 		`DELETE FROM entries WHERE id = $1`, id,

@@ -10,6 +10,8 @@ import (
 	"github.com/nemouu/cairn/internal/entries"
 )
 
+// RegisterRoutes registers all todo-related HTTP routes with the provided ServeMux.
+// It maps URLs to their respective handlers for CRUD operations and item management.
 func RegisterRoutes(mux *http.ServeMux, pool *pgxpool.Pool) {
 	mux.HandleFunc("GET /todos/new", handleForm(pool, false))
 	mux.HandleFunc("POST /todos", handleCreate(pool))
@@ -18,12 +20,12 @@ func RegisterRoutes(mux *http.ServeMux, pool *pgxpool.Pool) {
 	mux.HandleFunc("POST /todos/{id}", handleUpdate(pool))
 	mux.HandleFunc("POST /todos/{id}/delete", handleDelete(pool))
 	mux.HandleFunc("POST /todos/{id}/items", handleAddItem(pool))
-	mux.HandleFunc("POST /todos/{id}/items/{itemID}/update", handleUpdateItem(pool))
 	mux.HandleFunc("POST /todos/{id}/items/{itemID}/toggle", handleToggleItem(pool))
 	mux.HandleFunc("POST /todos/{id}/items/{itemID}/delete", handleDeleteItem(pool))
 }
 
-// handleForm
+// handleForm renders the form template for creating or editing a todo list.
+// If isEdit is true, it loads the existing todo and its tags for editing.
 func handleForm(pool *pgxpool.Pool, isEdit bool) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		data := map[string]any{
@@ -59,7 +61,8 @@ func handleForm(pool *pgxpool.Pool, isEdit bool) http.HandlerFunc {
 	}
 }
 
-// handleCreate
+// handleCreate processes the form submission for creating a new todo list.
+// It validates the title, creates the todo, sets tags, and redirects to the view page.
 func handleCreate(pool *pgxpool.Pool) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if err := r.ParseForm(); err != nil {
@@ -91,7 +94,7 @@ func handleCreate(pool *pgxpool.Pool) http.HandlerFunc {
 	}
 }
 
-// handleView
+// handleView renders the view template for a todo list, including its items and tags.
 func handleView(pool *pgxpool.Pool) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id := r.PathValue("id")
@@ -127,7 +130,8 @@ func handleView(pool *pgxpool.Pool) http.HandlerFunc {
 	}
 }
 
-// handleUpdate
+// handleUpdate processes the form submission for updating a todo list's title and tags.
+// It validates the title, updates the todo, sets tags, and redirects to the view page.
 func handleUpdate(pool *pgxpool.Pool) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id := r.PathValue("id")
@@ -160,7 +164,7 @@ func handleUpdate(pool *pgxpool.Pool) http.HandlerFunc {
 	}
 }
 
-// handleDelete
+// handleDelete removes a todo list and redirects to the dashboard.
 func handleDelete(pool *pgxpool.Pool) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id := r.PathValue("id")
@@ -174,7 +178,8 @@ func handleDelete(pool *pgxpool.Pool) http.HandlerFunc {
 	}
 }
 
-// handleAddItem
+// handleAddItem processes the form submission for adding a new item to a todo list.
+// It validates the item body, adds the item, and redirects to the view page.
 func handleAddItem(pool *pgxpool.Pool) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id := r.PathValue("id")
@@ -200,36 +205,8 @@ func handleAddItem(pool *pgxpool.Pool) http.HandlerFunc {
 	}
 }
 
-// handleUpdateItem
-func handleUpdateItem(pool *pgxpool.Pool) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		id := r.PathValue("id")
-		entryID := r.PathValue("entryID")
-		itemID := r.PathValue("itemID")
-
-		if err := r.ParseForm(); err != nil {
-			http.Error(w, "bad request", http.StatusBadRequest)
-			return
-		}
-
-		body := r.FormValue("body")
-
-		if body == "" {
-			http.Error(w, "body is required", http.StatusBadRequest)
-			return
-		}
-
-		if err := UpdateItem(r.Context(), pool, entryID, itemID, body); err != nil {
-			log.Println("update item error:", err)
-			http.Error(w, "database error", http.StatusInternalServerError)
-			return
-		}
-
-		http.Redirect(w, r, "/todos/"+id, http.StatusSeeOther)
-	}
-}
-
-// handleToggleItem
+// handleToggleItem toggles the completion status of a todo item.
+// It updates the item's IsDone status and redirects to the view page.
 func handleToggleItem(pool *pgxpool.Pool) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id := r.PathValue("id")
@@ -244,7 +221,7 @@ func handleToggleItem(pool *pgxpool.Pool) http.HandlerFunc {
 	}
 }
 
-// handleDeleteItem
+// handleDeleteItem removes a todo item from the list and redirects to the view page.
 func handleDeleteItem(pool *pgxpool.Pool) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id := r.PathValue("id")

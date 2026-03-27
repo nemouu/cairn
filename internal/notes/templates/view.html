@@ -1,7 +1,10 @@
 {{define "content"}}
 <article>
+    <!-- Note title and last updated timestamp -->
     <h1>{{.Entry.Title}}</h1>
     <time>{{.Entry.UpdatedAt.Format "2 Jan 2006, 15:04"}}</time>
+
+    <!-- Tag list: Links to filtered views by tag -->
     {{if .Tags}}
     <div class="tags">
         {{range .Tags}}
@@ -9,7 +12,11 @@
         {{end}}
     </div>
     {{end}}
+
+    <!-- Note body: Renders the content (Markdown or plain text) -->
     <div class="body">{{.Note.Body}}</div>
+
+    <!-- Action buttons: Edit and Delete -->
     <div class="actions">
         <a href="/notes/{{.Entry.ID}}/edit">Edit</a>
         <form
@@ -21,5 +28,7 @@
         </form>
     </div>
 </article>
+
+<!-- Link to return to the dashboard -->
 <a href="/">Back to dashboard</a>
 {{end}}

@@ -1,3 +1,6 @@
+// Package database provides utilities for connecting to the PostgreSQL database
+// and running schema migrations.
+// It handles connection pooling and tracks applied migrations to ensure idempaticity.
 package database
 
 import (
@@ -11,6 +14,9 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
+// Connect establishes a connection pool to the PostgreSQL database using the DATABASE_URL environment variable.
+// If DATABASE_URL is not set, it defaults to a local development URL.
+// Returns a *pgxpool.Pool or an error.
 func Connect(ctx context.Context) (*pgxpool.Pool, error) {
 	url := os.Getenv("DATABASE_URL")
 	if url == "" {
@@ -19,6 +25,9 @@ func Connect(ctx context.Context) (*pgxpool.Pool, error) {
 	return pgxpool.New(ctx, url)
 }
 
+// RunMigrations applies all pending SQL migrations from the specified directory.
+// Migrations are applied in alphabetical order and tracked in the schema_migrations table.
+// Returns an error if any migration fails.
 func RunMigrations(ctx context.Context, pool *pgxpool.Pool, dir string) error {
 	// Create tracking table if it doesn't exist
 	_, err := pool.Exec(ctx, `

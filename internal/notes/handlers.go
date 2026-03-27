@@ -10,6 +10,8 @@ import (
 	"github.com/nemouu/cairn/internal/entries"
 )
 
+// RegisterRoutes registers all note-related HTTP routes with the provided ServeMux.
+// It maps URLs to their respective handlers for CRUD operations.
 func RegisterRoutes(mux *http.ServeMux, pool *pgxpool.Pool) {
 	mux.HandleFunc("GET /notes/new", handleForm(pool, false))
 	mux.HandleFunc("POST /notes", handleCreate(pool))
@@ -19,6 +21,8 @@ func RegisterRoutes(mux *http.ServeMux, pool *pgxpool.Pool) {
 	mux.HandleFunc("POST /notes/{id}/delete", handleDelete(pool))
 }
 
+// handleForm renders the form template for creating or editing a note.
+// If isEdit is true, it loads the existing note and its tags for editing.
 func handleForm(pool *pgxpool.Pool, isEdit bool) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		data := map[string]any{
@@ -55,6 +59,8 @@ func handleForm(pool *pgxpool.Pool, isEdit bool) http.HandlerFunc {
 	}
 }
 
+// handleCreate processes the form submission for creating a new note.
+// It validates the title, creates the note, sets tags, and redirects to the view page.
 func handleCreate(pool *pgxpool.Pool) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if err := r.ParseForm(); err != nil {
@@ -87,6 +93,7 @@ func handleCreate(pool *pgxpool.Pool) http.HandlerFunc {
 	}
 }
 
+// handleView renders the view template for a note, including its content and tags.
 func handleView(pool *pgxpool.Pool) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id := r.PathValue("id")
@@ -122,6 +129,8 @@ func handleView(pool *pgxpool.Pool) http.HandlerFunc {
 	}
 }
 
+// handleUpdate processes the form submission for updating a note's title, body, and tags.
+// It validates the title, updates the note, sets tags, and redirects to the view page.
 func handleUpdate(pool *pgxpool.Pool) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id := r.PathValue("id")
@@ -155,6 +164,7 @@ func handleUpdate(pool *pgxpool.Pool) http.HandlerFunc {
 	}
 }
 
+// handleDelete removes a note and redirects to the dashboard.
 func handleDelete(pool *pgxpool.Pool) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id := r.PathValue("id")

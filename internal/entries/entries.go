@@ -1,3 +1,8 @@
+// Package entries provides shared functionality for managing and querying entry records
+// (e.g., bookmarks, notes, todos,...) and their associated tags.
+// It includes utilities for listing, searching, and tagging entries across the application.
+// This file only requires changes if functionality should be added that concerns all entry
+// types.
 package entries
 
 import (
@@ -8,19 +13,25 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
+// Entry represents a generic entry in the Cairn application.
+// All entry types (bookmarks, notes, todos) share this base structure.
 type Entry struct {
-	ID        string
-	EntryType string
-	Title     string
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	ID        string    // Unique identifier for the entry.
+	EntryType string    // Type of the entry (e.g., "bookmark", "note", "todo").
+	Title     string    // Title or name of the entry.
+	CreatedAt time.Time // Timestamp when the entry was created.
+	UpdatedAt time.Time // Timestamp when the entry was last updated.
 }
 
+// Tag represents a user-defined label that can be associated with entries.
+// Tags are shared across all entry types.
 type Tag struct {
-	ID   string
-	Name string
+	ID   string // Unique identifier for the tag.
+	Name string // Name of the tag (e.g., "work", "thesis").
 }
 
+// ListAll retrieves all entries from the database, ordered by most recently updated.
+// Returns a slice of entries or an error.
 func ListAll(ctx context.Context, pool *pgxpool.Pool) ([]Entry, error) {
 	rows, err := pool.Query(ctx,
 		`SELECT id, entry_type, title, created_at, updated_at
@@ -44,6 +55,8 @@ func ListAll(ctx context.Context, pool *pgxpool.Pool) ([]Entry, error) {
 	return entries, rows.Err()
 }
 
+// ListByTag retrieves all entries associated with a specific tag.
+// Returns a slice of entries or an error.
 func ListByTag(ctx context.Context, pool *pgxpool.Pool, name string) ([]Entry, error) {
 	rows, err := pool.Query(ctx,
 		`SELECT e.id, e.entry_type, e.title, e.created_at, e.updated_at
@@ -70,6 +83,8 @@ func ListByTag(ctx context.Context, pool *pgxpool.Pool, name string) ([]Entry, e
 	return entries, rows.Err()
 }
 
+// GetTags retrieves all tags associated with a specific entry.
+// Returns a slice of tags or an error.
 func GetTags(ctx context.Context, pool *pgxpool.Pool, entryID string) ([]Tag, error) {
 	rows, err := pool.Query(ctx,
 		`SELECT t.id, t.name
@@ -94,6 +109,9 @@ func GetTags(ctx context.Context, pool *pgxpool.Pool, entryID string) ([]Tag, er
 	return tags, rows.Err()
 }
 
+// GetTagsForEntries retrieves all tags for a list of entries.
+// Returns a map of entry IDs to their associated tags, or an error.
+// If entryIDs is empty, returns an empty map.
 func GetTagsForEntries(ctx context.Context, pool *pgxpool.Pool, entryIDs []string) (map[string][]Tag, error) {
 	if len(entryIDs) == 0 {
 		return make(map[string][]Tag), nil
@@ -122,6 +140,9 @@ func GetTagsForEntries(ctx context.Context, pool *pgxpool.Pool, entryIDs []strin
 	return result, rows.Err()
 }
 
+// SetTags replaces the tags for a specific entry with the provided tag names.
+// It handles tag creation, deduplication, and linking in a single transaction.
+// Returns an error if any step fails.
 func SetTags(ctx context.Context, pool *pgxpool.Pool, entryID string, tagNames []string) error {
 	tx, err := pool.Begin(ctx)
 	if err != nil {
@@ -167,6 +188,8 @@ func SetTags(ctx context.Context, pool *pgxpool.Pool, entryID string, tagNames [
 	return tx.Commit(ctx)
 }
 
+// Search performs a full-text search across all entries.
+// Returns a slice of entries ranked by relevance, or an error.
 func Search(ctx context.Context, pool *pgxpool.Pool, query string) ([]Entry, error) {
 	rows, err := pool.Query(ctx,
 		`SELECT id, entry_type, title, created_at, updated_at

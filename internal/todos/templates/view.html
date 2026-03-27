@@ -1,7 +1,10 @@
 {{define "content"}}
 <article>
+    <!-- Todo title and last updated timestamp -->
     <h1>{{.Entry.Title}}</h1>
     <time>{{.Entry.UpdatedAt.Format "2 Jan 2006, 15:04"}}</time>
+
+    <!-- Tag list: Links to filtered views by tag -->
     {{if .Tags}}
     <div class="tags">
         {{range .Tags}}
@@ -9,21 +12,30 @@
         {{end}}
     </div>
     {{end}}
+
+    <!-- List of todo items with toggle and delete buttons -->
     {{range .Todo}}
     <div class="todo-item">
+        <!-- Toggle button: Marks the item as done/undone -->
         <form method="POST" action="/todos/{{$.Entry.ID}}/items/{{.ID}}/toggle" style="display:inline">
             <button type="submit">{{if .IsDone}}☑{{else}}☐{{end}}</button>
         </form>
+        <!-- Item body: Strikethrough if completed -->
         <span{{if .IsDone}} style="text-decoration:line-through"{{end}}>{{.Body}}</span>
+        <!-- Delete button for this item -->
         <form method="POST" action="/todos/{{$.Entry.ID}}/items/{{.ID}}/delete" style="display:inline">
             <button type="submit">Delete</button>
         </form>
     </div>
     {{end}}
+
+    <!-- Form to add a new item to this todo list -->
     <form method="POST" action="/todos/{{.Entry.ID}}/items">
         <input type="text" name="body" placeholder="Add new item..." required>
         <button type="submit">Add</button>
     </form>
+
+    <!-- Action buttons: Edit and Delete -->
     <div class="actions">
         <a href="/todos/{{.Entry.ID}}/edit">Edit</a>
         <form
@@ -35,5 +47,7 @@
         </form>
     </div>
 </article>
+
+<!-- Link to return to the dashboard -->
 <a href="/">Back to dashboard</a>
 {{end}}
