@@ -41,13 +41,9 @@ Adding a new entry type = one SQL migration + one Go package. No changes to exis
 
 - Background scheduler for automatic bookmark health checks
 - Content drift detection (page returns 200 but content has changed)
-- Bookmark check history with status over time
 - Reading notes with source tracking (URL, DOI, ISBN)
 - Code snippets with server-side syntax highlighting
 - Decision logs for recording reasoning behind choices
-- Cross-references between entries
-- Full-text search via PostgreSQL `tsvector`
-- Turbo/Hotwire for snappy partial page updates
 - Browser bookmark import
 
 ## License
