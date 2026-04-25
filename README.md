@@ -37,7 +37,7 @@ All entry types share a common `entries` table. Each type has its own table with
 
 Adding a new entry type = one SQL migration + one Go package. No changes to existing code.
 
-## Future Ideas
+## Future Plans
 
 - Background scheduler for automatic bookmark health checks
 - Content drift detection (page returns 200 but content has changed)
