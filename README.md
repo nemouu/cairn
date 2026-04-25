@@ -45,6 +45,9 @@ Adding a new entry type = one SQL migration + one Go package. No changes to exis
 - Code snippets with server-side syntax highlighting
 - Decision logs for recording reasoning behind choices
 - Browser bookmark import
+- Add index card entry type
+- Improve overall UI (spacings, buttons, etc)
+- Add better logging
 
 ## License
 
