@@ -41,9 +41,122 @@
     display: inline;
 }
 
+/* === Navbar === */
+.navbar {
+    --bulma-navbar-item-background-a: 0;
+    --bulma-navbar-item-hover-background-l-delta: 0%;
+    padding-top: 2rem;
+    padding-bottom: 1rem;
+}
+
+.navbar .container {
+    max-width: 1200px;
+}
+
+.navbar-brand img {
+    max-height: 72px;
+}
+
+.navbar-brand a {
+    transition:
+        background 0.15s ease,
+        border-radius 0.15s ease;
+}
+
+.navbar-brand a:hover {
+    background: rgba(212, 160, 85, 0.07) !important;
+    border-radius: 10px;
+}
+
+.navbar-end {
+    padding-right: 2rem;
+}
+
+/* === Add button === */
+.add-button {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    border: 2px solid #d4a055;
+    background: transparent;
+    color: #d4a055;
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding-bottom: 3px;
+    flex-shrink: 0;
+}
+
+.add-button:hover {
+    background: #d4a055;
+    color: #2d2b28;
+}
+
+/* === Search bar === */
+.navbar-search {
+    position: relative;
+}
+
+.navbar-search .input {
+    background-color: #3a3733;
+    border-color: #4a4540;
+    border-radius: 20px;
+    color: #e8dfd5;
+    padding-right: 2.5rem;
+    padding-left: 1rem;
+}
+
+.navbar-search .input::placeholder {
+    color: #8b7d6b;
+}
+
+.navbar-search .input:focus {
+    border-color: #d4a055;
+    box-shadow: 0 0 0 2px rgba(212, 160, 85, 0.15);
+}
+
+.search-button {
+    position: absolute;
+    right: 1rem;
+    top: 52%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    color: #8b7d6b;
+}
+
+.search-button:hover {
+    color: #d4a055;
+}
+
 /* === Cards === */
+.card {
+    background-color: #3a3733;
+    border: 1px solid #4a4540;
+    box-shadow: none;
+    cursor: pointer;
+    height: 100%;
+    min-height: 200px;
+}
+
 .card-content {
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding-bottom: 1.25rem;
+}
+
+.card-meta {
+    margin-top: auto;
+}
+
+.card-meta .tags {
+    margin-bottom: 0.25rem;
 }
 
 .card-content .level {

@@ -1,36 +1,12 @@
-{{define "content"}}
-
-<!-- Search bar -->
-<div class="block">
-    <form method="GET" action="/">
-        <div class="field has-addons">
-            <div class="control is-expanded">
-                <input
-                    class="input"
-                    type="text"
-                    name="q"
-                    placeholder="Search..."
-                    value="{{.Query}}"
-                />
-            </div>
-            {{if .Query}}
-            <div class="control">
-                <a href="/" class="button is-light">✕</a>
-            </div>
-            {{end}}
-            <div class="control">
-                <button type="submit" class="button is-primary">Search</button>
-            </div>
-        </div>
-    </form>
-</div>
-
-<!-- Entry grid -->
-{{if .Entries}}
+{{define "content"}} {{if .Entries}}
 <div class="columns is-multiline">
     {{range .Entries}}
     <div class="column is-one-third">
-        <div class="card">
+        <div
+            class="card"
+            x-data
+            @click="window.location = '/{{.EntryType}}s/{{.ID}}'"
+        >
             <div class="card-content">
                 <div class="level is-mobile">
                     <div class="level-left">
@@ -45,22 +21,26 @@
                     </div>
                 </div>
 
-                {{$tags := index $.EntryTags .ID}} {{if $tags}}
-                <div class="tags">
-                    {{range $tags}}
-                    <a href="/tags/{{.Name}}" class="tag is-light">{{.Name}}</a>
+                <div class="card-meta">
+                    {{$tags := index $.EntryTags .ID}} {{if $tags}}
+                    <div class="tags">
+                        {{range $tags}}
+                        <a href="/tags/{{.Name}}" class="tag is-light"
+                            >{{.Name}}</a
+                        >
+                        {{end}}
+                    </div>
                     {{end}}
-                </div>
-                {{end}}
 
-                <time class="is-size-7 has-text-grey">
-                    {{.UpdatedAt.Format "2 Jan 2006"}}
-                </time>
+                    <time class="is-size-7 has-text-grey">
+                        {{.UpdatedAt.Format "2 Jan 2006"}}
+                    </time>
+                </div>
             </div>
         </div>
     </div>
     {{end}}
 </div>
 {{else}}
-<p class="has-text-grey">No entries yet. Click + New Entry to create one.</p>
+<p class="has-text-grey">No entries yet. Click + to create one.</p>
 {{end}} {{end}}
