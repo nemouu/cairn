@@ -1,34 +1,36 @@
 {{define "content"}}
-<article>
-    <!-- Note title and last updated timestamp -->
-    <h1>{{.Entry.Title}}</h1>
-    <time>{{.Entry.UpdatedAt.Format "2 Jan 2006, 15:04"}}</time>
+<article class="box">
+    <div class="level">
+        <div class="level-left">
+            <h1 class="title">{{.Entry.Title}}</h1>
+        </div>
+        <div class="level-right">
+            <time class="is-size-7 has-text-grey">
+                {{.Entry.UpdatedAt.Format "2 Jan 2006, 15:04"}}
+            </time>
+        </div>
+    </div>
 
-    <!-- Tag list: Links to filtered views by tag -->
     {{if .Tags}}
     <div class="tags">
         {{range .Tags}}
-        <a href="/tags/{{.Name}}">{{.Name}}</a>
+        <a href="/tags/{{.Name}}" class="tag is-light">{{.Name}}</a>
         {{end}}
     </div>
     {{end}}
 
-    <!-- Note body: Renders the content (Markdown or plain text) -->
-    <div class="body">{{.Note.Body}}</div>
+    <div class="content block">{{.Note.Body}}</div>
 
-    <!-- Action buttons: Edit and Delete -->
-    <div class="actions">
-        <a href="/notes/{{.Entry.ID}}/edit">Edit</a>
-        <form
-            method="POST"
-            action="/notes/{{.Entry.ID}}/delete"
-            style="display: inline"
+    <div class="buttons">
+        <a href="/notes/{{.Entry.ID}}/edit" class="button is-info is-light"
+            >Edit</a
         >
-            <button type="submit">Delete</button>
+        <form method="POST" action="/notes/{{.Entry.ID}}/delete">
+            <button type="submit" class="button is-danger is-light">
+                Delete
+            </button>
         </form>
+        <a href="/" class="button is-light">Back</a>
     </div>
 </article>
-
-<!-- Link to return to the dashboard -->
-<a href="/">Back to dashboard</a>
 {{end}}

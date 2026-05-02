@@ -1,85 +1,64 @@
 {{define "content"}}
-<div class="page-header">
-    <!-- Page title and search form -->
-    <h1>Your entries</h1>
-    <form method="GET" action="/" class="search-form">
-        <input
-            type="text"
-            name="q"
-            placeholder="Search..."
-            value="{{.Query}}"
-        />
-        <!-- Clear search button: Shown only when a query is active -->
-        {{if .Query}}
-        <button
-            type="button"
-            class="clear-button"
-            onclick="window.location.href = '/'"
-        >
-            <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-            >
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
-        </button>
-        {{end}}
-        <!-- Search submit button: Magnifying glass icon -->
-        <button type="submit" class="search-button">
-            <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-            >
-                <circle cx="11" cy="11" r="8"></circle>
-                <path d="m21 21-4.35-4.35"></path>
-            </svg>
-        </button>
+
+<!-- Search bar -->
+<div class="block">
+    <form method="GET" action="/">
+        <div class="field has-addons">
+            <div class="control is-expanded">
+                <input
+                    class="input"
+                    type="text"
+                    name="q"
+                    placeholder="Search..."
+                    value="{{.Query}}"
+                />
+            </div>
+            {{if .Query}}
+            <div class="control">
+                <a href="/" class="button is-light">✕</a>
+            </div>
+            {{end}}
+            <div class="control">
+                <button type="submit" class="button is-primary">Search</button>
+            </div>
+        </div>
     </form>
 </div>
 
-<!-- Entry grid: Displays all entries if they exist -->
+<!-- Entry grid -->
 {{if .Entries}}
-<div class="entry-grid">
+<div class="columns is-multiline">
     {{range .Entries}}
-    <div class="entry">
-        <!-- Entry link: Navigates to the specific entry view -->
-        <a href="/{{.EntryType}}s/{{.ID}}" class="entry-link">
-            <div class="entry-header">
-                <span class="entry-title">{{.Title}}</span>
-                <!-- Entry type badge: Visual indicator for note/bookmark/todo -->
-                <span class="badge badge-{{.EntryType}}">{{.EntryType}}</span>
-            </div>
-        </a>
+    <div class="column is-one-third">
+        <div class="card">
+            <div class="card-content">
+                <div class="level is-mobile">
+                    <div class="level-left">
+                        <a href="/{{.EntryType}}s/{{.ID}}">
+                            <p class="title is-5">{{.Title}}</p>
+                        </a>
+                    </div>
+                    <div class="level-right">
+                        <span class="tag is-info">{{.EntryType}}</span>
+                    </div>
+                </div>
 
-        <!-- Tags: Links to filtered views by tag -->
-        {{$tags := index $.EntryTags .ID}} {{if $tags}}
-        <div class="tags">
-            {{range $tags}}
-            <a href="/tags/{{.Name}}">{{.Name}}</a>
-            {{end}}
+                {{$tags := index $.EntryTags .ID}} {{if $tags}}
+                <div class="tags">
+                    {{range $tags}}
+                    <a href="/tags/{{.Name}}" class="tag is-light">{{.Name}}</a>
+                    {{end}}
+                </div>
+                {{end}}
+
+                <time class="is-size-7 has-text-grey">
+                    {{.UpdatedAt.Format "2 Jan 2006"}}
+                </time>
+            </div>
         </div>
-        {{end}}
-        <!-- Last updated timestamp -->
-        <time>{{.UpdatedAt.Format "2 Jan 2006"}}</time>
     </div>
     {{end}}
 </div>
 {{else}}
-<!-- Message shown when no entries exist -->
-<p>No entries yet. Click + to create one.</p>
+<p class="has-text-grey">No entries yet. Click + New Entry to create one.</p>
 {{end}} {{end}}

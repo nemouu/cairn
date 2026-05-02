@@ -1,49 +1,54 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="light">
     <head>
-        <!-- Basic meta tags and page title -->
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>{{.Title}} – Cairn</title>
-        <!-- CSS stylesheets: Reset, variables, base, layout, and component-specific styles -->
-        <link rel="stylesheet" href="/static/reset.css" />
+        <link rel="stylesheet" href="/static/bulma.min.css" />
         <link rel="stylesheet" href="/static/variables.css" />
-        <link rel="stylesheet" href="/static/base.css" />
-        <link rel="stylesheet" href="/static/layout.css" />
-        <!-- Component styles: forms, cards, navigation, buttons, status, tags -->
-        <link rel="stylesheet" href="/static/components/forms.css" />
-        <link rel="stylesheet" href="/static/components/cards.css" />
-        <link rel="stylesheet" href="/static/components/navigation.css" />
-        <link rel="stylesheet" href="/static/components/buttons.css" />
-        <link rel="stylesheet" href="/static/components/status.css" />
-        <link rel="stylesheet" href="/static/components/tags.css" />
+        <script src="/static/htmx.min.js"></script>
+        <script src="/static/alpine.min.js" defer></script>
     </head>
     <body>
-        <!-- Site header: Logo/link and new entry dropdown -->
-        <header>
-            <div class="header-content">
-                <a href="/" class="logo-link">
-                    <img src="/static/logo.png" alt="Cairn Logo" class="logo" />
+        <nav class="navbar" role="navigation" aria-label="main navigation">
+            <div class="navbar-brand">
+                <a class="navbar-item" href="/">
+                    <img src="/static/logo.png" alt="Cairn Logo" />
                 </a>
             </div>
-            <div class="new-entry">
-                <button
-                    onclick="
-                        document
-                            .getElementById('type-menu')
-                            .classList.toggle('hidden')
-                    "
-                >
-                    +
-                </button>
-                <div id="type-menu" class="hidden">
-                    <a href="/notes/new">Note</a>
-                    <a href="/bookmarks/new">Bookmark</a>
-                    <a href="/todos/new">Todo List</a>
+            <div class="navbar-end">
+                <div class="navbar-item">
+                    <div x-data="{ open: false }" class="is-relative">
+                        <button class="button is-primary" @click="open = !open">
+                            + New Entry
+                        </button>
+                        <div
+                            x-show="open"
+                            @click.outside="open = false"
+                            class="box"
+                            style="
+                                position: absolute;
+                                right: 0;
+                                top: 100%;
+                                min-width: 150px;
+                                padding: 0.5rem;
+                                z-index: 100;
+                            "
+                        >
+                            <a class="navbar-item" href="/notes/new">Note</a>
+                            <a class="navbar-item" href="/bookmarks/new"
+                                >Bookmark</a
+                            >
+                            <a class="navbar-item" href="/todos/new"
+                                >Todo List</a
+                            >
+                        </div>
+                    </div>
                 </div>
             </div>
-        </header>
-        <!-- Main content area: Injected by child templates -->
-        <main>{{template "content" .}}</main>
+        </nav>
+        <main class="section">
+            <div class="container">{{template "content" .}}</div>
+        </main>
     </body>
 </html>
