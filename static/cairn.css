@@ -1,0 +1,97 @@
+/* ============================================
+   CAIRN — CUSTOM STYLES
+   Overrides and extensions on top of Bulma.
+   ============================================ */
+
+/* === Light mode (default) === */
+:root {
+    --bulma-primary-h: 35deg;
+    --bulma-primary-s: 62%;
+    --bulma-primary-l: 58%;
+}
+
+/* === Dark mode === */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bulma-scheme-main: #2d2b28;
+        --bulma-text: #e8dfd5;
+        --bulma-primary-h: 35deg;
+        --bulma-primary-s: 62%;
+        --bulma-primary-l: 58%;
+    }
+}
+
+/* === Manual theme override (for future toggle button) === */
+[data-theme="dark"] {
+    --bulma-scheme-main: #2d2b28;
+    --bulma-text: #e8dfd5;
+}
+
+[data-theme="light"] {
+    --bulma-scheme-main: #ffffff;
+    --bulma-text: #363636;
+}
+
+/* === HTMX === */
+.htmx-indicator {
+    display: none;
+}
+
+.htmx-request .htmx-indicator {
+    display: inline;
+}
+
+/* === Cards === */
+.card-content {
+    overflow: hidden;
+}
+
+.card-content .level {
+    align-items: flex-start;
+    flex-wrap: nowrap;
+    gap: 0.5rem;
+}
+
+.card-content .level-left {
+    overflow: hidden;
+    flex-shrink: 1;
+    min-width: 0;
+}
+
+.card-content .level-left a {
+    display: block;
+    overflow: hidden;
+}
+
+.card .title {
+    word-break: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
+    color: var(--bulma-text);
+}
+
+/* === Entry type badges === */
+.tag.type-note {
+    background-color: #7e9aaf;
+    color: #2d2b28;
+}
+
+.tag.type-bookmark {
+    background-color: #a87b9f;
+    color: #2d2b28;
+}
+
+.tag.type-todo {
+    background-color: #7a9b6f;
+    color: #2d2b28;
+}
+
+/* === Tags === */
+.tags .tag.is-light {
+    background-color: #4a4540;
+    color: #b5a896;
+}
+
+.tags .tag.is-light:hover {
+    background-color: #5a534d;
+}
