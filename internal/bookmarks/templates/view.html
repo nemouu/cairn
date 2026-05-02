@@ -1,89 +1,109 @@
 {{define "content"}}
-<article>
-    <!-- Bookmark title and last updated timestamp -->
-    <h1>{{.Entry.Title}}</h1>
-    <time>{{.Entry.UpdatedAt.Format "2 Jan 2006, 15:04"}}</time>
+<article class="box">
+    <div class="level">
+        <div class="level-left">
+            <h1 class="title">{{.Entry.Title}}</h1>
+        </div>
+        <div class="level-right">
+            <time class="is-size-7 has-text-grey">
+                {{.Entry.UpdatedAt.Format "2 Jan 2006, 15:04"}}
+            </time>
+        </div>
+    </div>
 
-    <!-- Tag list: Links to filtered views by tag -->
     {{if .Tags}}
     <div class="tags">
         {{range .Tags}}
-        <a href="/tags/{{.Name}}">{{.Name}}</a>
+        <a href="/tags/{{.Name}}" class="tag is-light">{{.Name}}</a>
         {{end}}
     </div>
     {{end}}
 
-    <div class="bookmark-list">
-        <h2>Links</h2>
+    <h2 class="subtitle">Links</h2>
 
-        <!-- List of bookmarked URLs with status and delete buttons -->
+    <!-- URL list -->
+    <div class="block" id="bookmark-items">
         {{if .BookmarkItems}} {{range .BookmarkItems}}
-        <div class="bookmark-item">
-            <!-- URL link: Opens in a new tab -->
-            <a href="{{.URL}}" target="_blank">{{.URL}}</a>
-
-            <!-- Status badge: Shows HTTP status or "Failed"/"Not checked" -->
-            {{if .LastCheckedAt}}
-            <span class="status-badge">
-                {{if .LastStatus}}{{.LastStatus}}{{else}}Failed{{end}}
-            </span>
-            <span class="status-time">
-                {{.LastCheckedAt.Format "2 Jan 15:04"}}
-            </span>
-            {{else}}
-            <span class="status-badge">Not checked</span>
-            {{end}}
-
-            <!-- Delete button for this URL -->
-            <form
-                method="POST"
-                action="/bookmarks/{{$.Entry.ID}}/items/{{.ID}}/delete"
-                style="display: inline"
-            >
-                <button type="submit">Delete</button>
-            </form>
+        <div class="level is-mobile mb-3">
+            <div class="level-left">
+                <div>
+                    <a href="{{.URL}}" target="_blank" class="has-text-link"
+                        >{{.URL}}</a
+                    >
+                    <div class="mt-1">
+                        {{if .LastCheckedAt}} {{if .LastStatus}}
+                        <span class="tag is-success is-light"
+                            >{{.LastStatus}}</span
+                        >
+                        {{else}}
+                        <span class="tag is-danger is-light">Failed</span>
+                        {{end}}
+                        <span class="is-size-7 has-text-grey ml-1">
+                            {{.LastCheckedAt.Format "2 Jan 15:04"}}
+                        </span>
+                        {{else}}
+                        <span class="tag is-warning is-light">Not checked</span>
+                        {{end}}
+                    </div>
+                </div>
+            </div>
+            <div class="level-right">
+                <form
+                    method="POST"
+                    action="/bookmarks/{{$.Entry.ID}}/items/{{.ID}}/delete"
+                >
+                    <button
+                        type="submit"
+                        class="button is-small is-danger is-light"
+                    >
+                        ✕
+                    </button>
+                </form>
+            </div>
         </div>
         {{end}} {{else}}
-        <!-- Message shown when no URLs are added yet -->
-        <p>No URLs yet. Add one below.</p>
+        <p class="has-text-grey">No URLs yet. Add one below.</p>
         {{end}}
+    </div>
 
-        <!-- Form to add a new URL to this bookmark -->
-        <form
-            method="POST"
-            action="/bookmarks/{{.Entry.ID}}/items"
-            class="add-item-form"
-        >
+    <!-- Add URL form -->
+    <form
+        method="POST"
+        action="/bookmarks/{{.Entry.ID}}/items"
+        class="field has-addons"
+        style="width: 100%"
+    >
+        <div class="control is-expanded">
             <input
+                class="input"
                 type="url"
                 name="url"
                 placeholder="https://example.com"
                 required
             />
-            <button type="submit">Add URL</button>
-        </form>
-    </div>
+        </div>
+        <div class="control">
+            <button type="submit" class="button is-primary">Add URL</button>
+        </div>
+    </form>
 
-    <!-- Action buttons: Edit, Delete, and Check All Links -->
-    <div class="actions">
-        <a href="/bookmarks/{{.Entry.ID}}/edit">Edit</a>
-        <form
-            method="POST"
-            action="/bookmarks/{{.Entry.ID}}/delete"
-            style="display: inline"
+    <hr />
+
+    <div class="buttons">
+        <a href="/bookmarks/{{.Entry.ID}}/edit" class="button is-info is-light"
+            >Edit</a
         >
-            <button type="submit">Delete</button>
+        <form method="POST" action="/bookmarks/{{.Entry.ID}}/delete">
+            <button type="submit" class="button is-danger is-light">
+                Delete
+            </button>
         </form>
-        <form
-            method="POST"
-            action="/bookmarks/{{.Entry.ID}}/check"
-            style="display: inline"
-        >
-            <button type="submit">Check All Links</button>
+        <form method="POST" action="/bookmarks/{{.Entry.ID}}/check">
+            <button type="submit" class="button is-warning is-light">
+                Check All Links
+            </button>
         </form>
+        <a href="/" class="button is-light">Back</a>
     </div>
 </article>
-
-<!-- Link to return to the dashboard -->
-<a href="/">Back to dashboard</a>
 {{end}}

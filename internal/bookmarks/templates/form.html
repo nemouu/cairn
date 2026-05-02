@@ -1,47 +1,52 @@
 {{define "content"}}
-<!-- Page title: Changes based on whether the form is for editing or creating a bookmark -->
-<h1>{{if .IsEdit}}Edit Bookmark{{else}}New Bookmark{{end}}</h1>
+<h1 class="title">{{if .IsEdit}}Edit Bookmark{{else}}New Bookmark{{end}}</h1>
 
-<!-- Form submission: POSTs to either the edit or create endpoint based on mode -->
 <form
     method="POST"
     action="{{if .IsEdit}}/bookmarks/{{.Entry.ID}}{{else}}/bookmarks{{end}}"
 >
-    <!-- Title field: Required for all bookmarks -->
-    <div>
-        <label for="title">Title</label>
-        <input
-            type="text"
-            id="title"
-            name="title"
-            value="{{if .IsEdit}}{{.Entry.Title}}{{end}}"
-            required
-        />
+    <div class="field">
+        <label class="label" for="title">Title</label>
+        <div class="control">
+            <input
+                class="input"
+                type="text"
+                id="title"
+                name="title"
+                value="{{if .IsEdit}}{{.Entry.Title}}{{end}}"
+                required
+            />
+        </div>
     </div>
 
-    <!-- Tags field: Comma-separated list, pre-filled in edit mode -->
-    <div>
-        <label for="tags">Tags</label>
-        <input
-            type="text"
-            id="tags"
-            name="tags"
-            value="{{if .IsEdit}}{{range $i, $t := .Tags}}{{if $i}}, {{end}}{{$t.Name}}{{end}}{{end}}"
-            placeholder="comma separated, e.g. work, thesis"
-        />
+    <div class="field">
+        <label class="label" for="tags">Tags</label>
+        <div class="control">
+            <input
+                class="input"
+                type="text"
+                id="tags"
+                name="tags"
+                value="{{if .IsEdit}}{{range $i, $t := .Tags}}{{if $i}}, {{end}}{{$t.Name}}{{end}}{{end}}"
+                placeholder="comma separated, e.g. work, thesis"
+            />
+        </div>
     </div>
 
-    <!-- Submit button: Text changes based on mode (Create/Save) -->
-    <button type="submit">{{if .IsEdit}}Save{{else}}Create{{end}}</button>
+    <div class="field is-grouped">
+        <div class="control">
+            <button type="submit" class="button is-primary">
+                {{if .IsEdit}}Save{{else}}Create{{end}}
+            </button>
+        </div>
+        <div class="control">
+            <a href="/" class="button is-light">Cancel</a>
+        </div>
+    </div>
 </form>
 
-<!-- Informational note: Explains next steps after form submission -->
-{{if .IsEdit}}
-<p>Add URLs on the bookmark view page after saving.</p>
-{{else}}
-<p>After creating, you'll be able to add URLs to this bookmark.</p>
-{{end}}
-
-<!-- Link to return to the dashboard -->
-<a href="/">Back to dashboard</a>
+<p class="help mt-4">
+    {{if .IsEdit}} Add URLs on the bookmark view page after saving. {{else}}
+    After creating, you'll be able to add URLs to this bookmark. {{end}}
+</p>
 {{end}}
