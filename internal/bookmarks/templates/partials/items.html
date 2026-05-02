@@ -1,0 +1,43 @@
+{{define "bookmark-items"}}
+<div class="block" id="bookmark-items">
+    {{if .BookmarkItems}} {{range .BookmarkItems}}
+    <div class="level is-mobile mb-3">
+        <div class="level-left">
+            <div>
+                <a href="{{.URL}}" target="_blank" class="has-text-link"
+                    >{{.URL}}</a
+                >
+                <div class="mt-1">
+                    {{if .LastCheckedAt}} {{if .LastStatus}}
+                    <span class="tag is-success is-light">{{.LastStatus}}</span>
+                    {{else}}
+                    <span class="tag is-danger is-light">Failed</span>
+                    {{end}}
+                    <span class="is-size-7 has-text-grey ml-1">
+                        {{.LastCheckedAt.Format "2 Jan 15:04"}}
+                    </span>
+                    {{else}}
+                    <span class="tag is-warning is-light">Not checked</span>
+                    {{end}}
+                </div>
+            </div>
+        </div>
+        <div class="level-right">
+            <form
+                method="POST"
+                action="/bookmarks/{{$.EntryID}}/items/{{.ID}}/delete"
+            >
+                <button
+                    type="submit"
+                    class="button is-small is-danger is-light"
+                >
+                    ✕
+                </button>
+            </form>
+        </div>
+    </div>
+    {{end}} {{else}}
+    <p class="has-text-grey">No URLs yet. Add one below.</p>
+    {{end}}
+</div>
+{{end}}

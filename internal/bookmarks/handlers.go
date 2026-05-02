@@ -113,7 +113,8 @@ func handleView(pool *pgxpool.Pool) http.HandlerFunc {
 			return
 		}
 
-		tmpl, err := template.ParseFiles("templates/layout.html", "internal/bookmarks/templates/view.html")
+		tmpl, err := template.ParseFiles("templates/layout.html", "internal/bookmarks/templates/view.html",
+			"internal/bookmarks/templates/partials/items.html")
 		if err != nil {
 			http.Error(w, "template error", http.StatusInternalServerError)
 			return
@@ -124,6 +125,7 @@ func handleView(pool *pgxpool.Pool) http.HandlerFunc {
 			"Entry":         entry,
 			"BookmarkItems": items,
 			"Tags":          tags,
+			"EntryID":       id,
 		}
 
 		if err := tmpl.ExecuteTemplate(w, "layout.html", data); err != nil {
@@ -183,10 +185,40 @@ func handleDelete(pool *pgxpool.Pool) http.HandlerFunc {
 func handleCheck(pool *pgxpool.Pool) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id := r.PathValue("id")
+
 		if err := Check(r.Context(), pool, id); err != nil {
 			http.Error(w, "check failed", http.StatusInternalServerError)
 			return
 		}
+
+		// HTMX request: return just the items partial
+		if r.Header.Get("HX-Request") == "true" {
+			_, items, err := GetByID(r.Context(), pool, id)
+			if err != nil {
+				http.Error(w, "database error", http.StatusInternalServerError)
+				return
+			}
+
+			tmpl, err := template.ParseFiles(
+				"internal/bookmarks/templates/partials/items.html",
+			)
+			if err != nil {
+				http.Error(w, "template error", http.StatusInternalServerError)
+				return
+			}
+
+			data := map[string]any{
+				"BookmarkItems": items,
+				"EntryID":       id,
+			}
+
+			if err := tmpl.ExecuteTemplate(w, "bookmark-items", data); err != nil {
+				log.Println("template render error:", err)
+			}
+			return
+		}
+
+		// Normal request: redirect as before
 		http.Redirect(w, r, "/bookmarks/"+id, http.StatusSeeOther)
 	}
 }

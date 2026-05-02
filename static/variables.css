@@ -56,3 +56,10 @@
     --spacing-md: 1rem;
     --spacing-lg: 2rem;
 }
+
+.htmx-indicator {
+    display: none;
+}
+.htmx-request .htmx-indicator {
+    display: inline;
+}

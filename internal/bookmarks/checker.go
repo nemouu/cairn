@@ -42,14 +42,11 @@ func Check(ctx context.Context, pool *pgxpool.Pool, entryID string) error {
 		return err
 	}
 
-	// Launch checks in the background using a separate context.
-	// This ensures checks complete even if the original HTTP request is cancelled.
-	go func() {
-		checkCtx := context.Background()
-		for _, i := range items {
-			checkItem(checkCtx, pool, i.id, i.url)
-		}
-	}()
+	// Run checks synchronously, not in background
+	checkCtx := context.Background()
+	for _, i := range items {
+		checkItem(checkCtx, pool, i.id, i.url)
+	}
 
 	return nil
 }
