@@ -10,9 +10,9 @@
     --bulma-primary-l: 58%;
 }
 
-/* === Dark mode === */
+/* === Dark mode (default via media query or explicit class) === */
 @media (prefers-color-scheme: dark) {
-    :root {
+    :root:not(.theme-light) {
         --bulma-scheme-main: #2d2b28;
         --bulma-text: #e8dfd5;
         --bulma-primary-h: 35deg;
@@ -21,13 +21,12 @@
     }
 }
 
-/* === Manual theme override (for future toggle button) === */
-[data-theme="dark"] {
+:root.theme-dark {
     --bulma-scheme-main: #2d2b28;
     --bulma-text: #e8dfd5;
 }
 
-[data-theme="light"] {
+:root.theme-light {
     --bulma-scheme-main: #ffffff;
     --bulma-text: #363636;
 }
@@ -230,3 +229,73 @@
     background-color: rgba(212, 160, 85, 0.05);
     border-color: #4a4540;
 }
+
+/* === Theme Toggle === */
+.theme-toggle {
+    color: #8b7d6b;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    transition: color 0.2s ease, transform 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem;
+}
+
+.theme-toggle:hover {
+    color: #d4a055;
+    background: transparent !important;
+}
+
+.theme-toggle svg {
+    display: block;
+}
+
+/* === Theme Slider === */
+.theme-slider {
+    display: flex;
+    background-color: #3a3733;
+    border: 1px solid #4a4540;
+    border-radius: 20px;
+    padding: 2px;
+    position: relative;
+    width: 100px;
+    height: 32px;
+}
+
+.theme-slider-option {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 2;
+    color: #8b7d6b;
+    transition: color 0.2s ease;
+}
+
+.theme-slider-option:hover {
+    color: #d4a055;
+}
+
+.theme-slider-option.is-active {
+    color: #2d2b28;
+}
+
+.theme-slider-thumb {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: calc((100% - 4px) / 3);
+    height: calc(100% - 4px);
+    background-color: #d4a055;
+    border-radius: 18px;
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1;
+}
+
+/* Thumb positions using percentage of the thumb's width */
+.theme-slider[data-theme="system"] .theme-slider-thumb { transform: translateX(0); }
+.theme-slider[data-theme="light"] .theme-slider-thumb { transform: translateX(100%); }
+.theme-slider[data-theme="dark"] .theme-slider-thumb { transform: translateX(200%); }
