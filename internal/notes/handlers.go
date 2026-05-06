@@ -19,6 +19,9 @@ func RegisterRoutes(mux *http.ServeMux, pool *pgxpool.Pool) {
 	mux.HandleFunc("GET /notes/{id}/edit", handleForm(pool, true))
 	mux.HandleFunc("POST /notes/{id}", handleUpdate(pool))
 	mux.HandleFunc("POST /notes/{id}/delete", handleDelete(pool))
+	mux.HandleFunc("GET /notes/{id}/body", handleGetBody(pool))
+	mux.HandleFunc("GET /notes/{id}/body/edit", handleEditBody(pool))
+	mux.HandleFunc("POST /notes/{id}/body", handleUpdateBody(pool))
 }
 
 // handleForm renders the form template for creating or editing a note.
@@ -104,7 +107,7 @@ func handleView(pool *pgxpool.Pool) http.HandlerFunc {
 			return
 		}
 
-		tmpl, err := template.ParseFiles("templates/layout.html", "internal/notes/templates/view.html")
+		tmpl, err := template.ParseFiles("templates/layout.html", "internal/notes/templates/view.html", "internal/notes/templates/partials/body.html")
 		if err != nil {
 			http.Error(w, "template error", http.StatusInternalServerError)
 			return
@@ -175,5 +178,99 @@ func handleDelete(pool *pgxpool.Pool) http.HandlerFunc {
 		}
 
 		http.Redirect(w, r, "/", http.StatusSeeOther)
+	}
+}
+
+// handleGetBody returns the rendered body of a note (used for canceling edit).
+func handleGetBody(pool *pgxpool.Pool) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		id := r.PathValue("id")
+		entry, note, err := GetByID(r.Context(), pool, id)
+		if err != nil {
+			http.Error(w, "not found", http.StatusNotFound)
+			return
+		}
+
+		tmpl, err := template.ParseFiles("internal/notes/templates/partials/body.html")
+		if err != nil {
+			http.Error(w, "template error", http.StatusInternalServerError)
+			return
+		}
+
+		data := map[string]any{
+			"Entry": entry,
+			"Note":  note,
+		}
+
+		if err := tmpl.ExecuteTemplate(w, "note-body", data); err != nil {
+			log.Println("template render error:", err)
+		}
+	}
+}
+
+// handleEditBody returns the edit form for a note body.
+func handleEditBody(pool *pgxpool.Pool) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		id := r.PathValue("id")
+		entry, note, err := GetByID(r.Context(), pool, id)
+		if err != nil {
+			http.Error(w, "not found", http.StatusNotFound)
+			return
+		}
+
+		tmpl, err := template.ParseFiles("internal/notes/templates/partials/body.html")
+		if err != nil {
+			http.Error(w, "template error", http.StatusInternalServerError)
+			return
+		}
+
+		data := map[string]any{
+			"Entry": entry,
+			"Note":  note,
+		}
+
+		if err := tmpl.ExecuteTemplate(w, "note-body-edit", data); err != nil {
+			log.Println("template render error:", err)
+		}
+	}
+}
+
+// handleUpdateBody updates the note body and returns the rendered body.
+func handleUpdateBody(pool *pgxpool.Pool) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		id := r.PathValue("id")
+
+		if err := r.ParseForm(); err != nil {
+			http.Error(w, "bad request", http.StatusBadRequest)
+			return
+		}
+
+		body := r.FormValue("body")
+
+		if err := UpdateBody(r.Context(), pool, id, body); err != nil {
+			http.Error(w, "database error", http.StatusInternalServerError)
+			return
+		}
+
+		entry, note, err := GetByID(r.Context(), pool, id)
+		if err != nil {
+			http.Error(w, "database error", http.StatusInternalServerError)
+			return
+		}
+
+		tmpl, err := template.ParseFiles("internal/notes/templates/partials/body.html")
+		if err != nil {
+			http.Error(w, "template error", http.StatusInternalServerError)
+			return
+		}
+
+		data := map[string]any{
+			"Entry": entry,
+			"Note":  note,
+		}
+
+		if err := tmpl.ExecuteTemplate(w, "note-body", data); err != nil {
+			log.Println("template render error:", err)
+		}
 	}
 }

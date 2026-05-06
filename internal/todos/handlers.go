@@ -105,7 +105,7 @@ func handleView(pool *pgxpool.Pool) http.HandlerFunc {
 			return
 		}
 
-		tmpl, err := template.ParseFiles("templates/layout.html", "internal/todos/templates/view.html")
+		tmpl, err := template.ParseFiles("templates/layout.html", "internal/todos/templates/view.html", "internal/todos/templates/partials/items.html")
 		if err != nil {
 			http.Error(w, "template error", http.StatusInternalServerError)
 			return
@@ -201,6 +201,11 @@ func handleAddItem(pool *pgxpool.Pool) http.HandlerFunc {
 			return
 		}
 
+		if r.Header.Get("HX-Request") == "true" {
+			renderItems(w, r, pool, id)
+			return
+		}
+
 		http.Redirect(w, r, "/todos/"+id, http.StatusSeeOther)
 	}
 }
@@ -214,6 +219,11 @@ func handleToggleItem(pool *pgxpool.Pool) http.HandlerFunc {
 
 		if err := ToggleItem(r.Context(), pool, itemID); err != nil {
 			http.Error(w, "database error", http.StatusInternalServerError)
+			return
+		}
+
+		if r.Header.Get("HX-Request") == "true" {
+			renderItems(w, r, pool, id)
 			return
 		}
 
@@ -232,6 +242,34 @@ func handleDeleteItem(pool *pgxpool.Pool) http.HandlerFunc {
 			return
 		}
 
+		if r.Header.Get("HX-Request") == "true" {
+			renderItems(w, r, pool, id)
+			return
+		}
+
 		http.Redirect(w, r, "/todos/"+id, http.StatusSeeOther)
+	}
+}
+
+func renderItems(w http.ResponseWriter, r *http.Request, pool *pgxpool.Pool, id string) {
+	entry, todoItems, err := GetByID(r.Context(), pool, id)
+	if err != nil {
+		http.Error(w, "database error", http.StatusInternalServerError)
+		return
+	}
+
+	tmpl, err := template.ParseFiles("internal/todos/templates/partials/items.html")
+	if err != nil {
+		http.Error(w, "template error", http.StatusInternalServerError)
+		return
+	}
+
+	data := map[string]any{
+		"Entry": entry,
+		"Todo":  todoItems,
+	}
+
+	if err := tmpl.ExecuteTemplate(w, "todo-items", data); err != nil {
+		log.Println("template render error:", err)
 	}
 }

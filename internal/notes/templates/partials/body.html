@@ -1,0 +1,27 @@
+{{define "note-body"}}
+<div id="note-body" hx-get="/notes/{{.Entry.ID}}/body/edit" hx-trigger="click" hx-target="this" hx-swap="outerHTML" class="content block clickable-body">
+    {{if .Note.Body}}
+        {{.Note.Body}}
+    {{else}}
+        <p class="has-text-grey">Click to add content...</p>
+    {{end}}
+</div>
+{{end}}
+
+{{define "note-body-edit"}}
+<form hx-post="/notes/{{.Entry.ID}}/body" hx-target="this" hx-swap="outerHTML" class="block">
+    <div class="field">
+        <div class="control">
+            <textarea class="textarea" name="body" rows="10" autofocus @keyup.esc="htmx.trigger(this, 'cancel')" hx-get="/notes/{{.Entry.ID}}/body" hx-trigger="cancel" hx-target="closest form" hx-swap="outerHTML">{{.Note.Body}}</textarea>
+        </div>
+    </div>
+    <div class="field is-grouped">
+        <div class="control">
+            <button type="submit" class="button is-primary is-small">Save</button>
+        </div>
+        <div class="control">
+            <button type="button" class="button is-light is-small" hx-get="/notes/{{.Entry.ID}}/body" hx-target="closest form" hx-swap="outerHTML">Cancel</button>
+        </div>
+    </div>
+</form>
+{{end}}

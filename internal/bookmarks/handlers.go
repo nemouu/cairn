@@ -193,28 +193,7 @@ func handleCheck(pool *pgxpool.Pool) http.HandlerFunc {
 
 		// HTMX request: return just the items partial
 		if r.Header.Get("HX-Request") == "true" {
-			_, items, err := GetByID(r.Context(), pool, id)
-			if err != nil {
-				http.Error(w, "database error", http.StatusInternalServerError)
-				return
-			}
-
-			tmpl, err := template.ParseFiles(
-				"internal/bookmarks/templates/partials/items.html",
-			)
-			if err != nil {
-				http.Error(w, "template error", http.StatusInternalServerError)
-				return
-			}
-
-			data := map[string]any{
-				"BookmarkItems": items,
-				"EntryID":       id,
-			}
-
-			if err := tmpl.ExecuteTemplate(w, "bookmark-items", data); err != nil {
-				log.Println("template render error:", err)
-			}
+			renderItems(w, r, pool, id)
 			return
 		}
 
@@ -245,6 +224,11 @@ func handleAddItem(pool *pgxpool.Pool) http.HandlerFunc {
 			return
 		}
 
+		if r.Header.Get("HX-Request") == "true" {
+			renderItems(w, r, pool, entryID)
+			return
+		}
+
 		http.Redirect(w, r, "/bookmarks/"+entryID, http.StatusSeeOther)
 	}
 }
@@ -260,6 +244,36 @@ func handleDeleteItem(pool *pgxpool.Pool) http.HandlerFunc {
 			return
 		}
 
+		if r.Header.Get("HX-Request") == "true" {
+			renderItems(w, r, pool, entryID)
+			return
+		}
+
 		http.Redirect(w, r, "/bookmarks/"+entryID, http.StatusSeeOther)
+	}
+}
+
+func renderItems(w http.ResponseWriter, r *http.Request, pool *pgxpool.Pool, entryID string) {
+	_, items, err := GetByID(r.Context(), pool, entryID)
+	if err != nil {
+		http.Error(w, "database error", http.StatusInternalServerError)
+		return
+	}
+
+	tmpl, err := template.ParseFiles(
+		"internal/bookmarks/templates/partials/items.html",
+	)
+	if err != nil {
+		http.Error(w, "template error", http.StatusInternalServerError)
+		return
+	}
+
+	data := map[string]any{
+		"BookmarkItems": items,
+		"EntryID":       entryID,
+	}
+
+	if err := tmpl.ExecuteTemplate(w, "bookmark-items", data); err != nil {
+		log.Println("template render error:", err)
 	}
 }

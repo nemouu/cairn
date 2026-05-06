@@ -19,7 +19,7 @@
     </div>
     {{end}}
 
-    <div class="content block">{{.Note.Body}}</div>
+    {{template "note-body" .}}
 
     <div class="buttons">
         <a href="/notes/{{.Entry.ID}}/edit" class="button is-info is-light"

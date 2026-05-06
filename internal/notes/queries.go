@@ -67,6 +67,38 @@ func GetByID(ctx context.Context, pool *pgxpool.Pool, id string) (entries.Entry,
 	return e, n, err
 }
 
+// UpdateBody modifies only the content of an existing note.
+// It updates the note content and refreshes the search vector for the entry.
+func UpdateBody(ctx context.Context, pool *pgxpool.Pool, id, body string) error {
+	tx, err := pool.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx)
+
+	var title string
+	err = tx.QueryRow(ctx, "SELECT title FROM entries WHERE id = $1", id).Scan(&title)
+	if err != nil {
+		return err
+	}
+
+	_, err = tx.Exec(ctx,
+		`UPDATE notes SET body = $1 WHERE entry_id = $2`, body, id,
+	)
+	if err != nil {
+		return err
+	}
+
+	_, err = tx.Exec(ctx,
+		`UPDATE entries SET updated_at = now(), search_vector = to_tsvector('english', $1 || ' ' || $2)
+     	 WHERE id = $3`, title, body, id,
+	)
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit(ctx)
+}
 // Update modifies the title and body of an existing note.
 // It updates both the entry record and the note content, then refreshes the search vector.
 // Returns an error if any step fails.

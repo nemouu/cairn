@@ -105,7 +105,25 @@ func main() {
 		}
 
 		// Render template with data or return an error
-		tmpl, err := template.ParseFiles("templates/layout.html", "templates/home.html")
+		var tmpl *template.Template
+		if r.Header.Get("HX-Request") == "true" {
+			tmpl, err = template.ParseFiles("templates/partials/entry_list.html")
+			if err != nil {
+				http.Error(w, "template error", http.StatusInternalServerError)
+				return
+			}
+			data := map[string]any{
+				"Entries":   entryList,
+				"EntryTags": entryTags,
+				"Query":     query,
+			}
+			if err := tmpl.ExecuteTemplate(w, "entry-list", data); err != nil {
+				log.Println("template render error:", err)
+			}
+			return
+		}
+
+		tmpl, err = template.ParseFiles("templates/layout.html", "templates/home.html", "templates/partials/entry_list.html")
 		if err != nil {
 			http.Error(w, "template error", http.StatusInternalServerError)
 			return
@@ -147,7 +165,24 @@ func main() {
 		}
 
 		// Render template with data or return an error
-		tmpl, err := template.ParseFiles("templates/layout.html", "templates/home.html")
+		var tmpl *template.Template
+		if r.Header.Get("HX-Request") == "true" {
+			tmpl, err = template.ParseFiles("templates/partials/entry_list.html")
+			if err != nil {
+				http.Error(w, "template error", http.StatusInternalServerError)
+				return
+			}
+			data := map[string]any{
+				"Entries":   entriesByTagsList,
+				"EntryTags": entryTags,
+			}
+			if err := tmpl.ExecuteTemplate(w, "entry-list", data); err != nil {
+				log.Println("template render error:", err)
+			}
+			return
+		}
+
+		tmpl, err = template.ParseFiles("templates/layout.html", "templates/home.html", "templates/partials/entry_list.html")
 		if err != nil {
 			http.Error(w, "template error", http.StatusInternalServerError)
 			return
