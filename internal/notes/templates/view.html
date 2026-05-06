@@ -21,7 +21,24 @@
 
     {{template "note-body" .}}
 
-    <div class="buttons">
+    <div class="buttons" x-data="{ 
+        copied: false,
+        copyToClipboard() {
+            const text = document.getElementById('note-body').innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                this.copied = true;
+                setTimeout(() => this.copied = false, 2000);
+            });
+        }
+    }">
+        <button 
+            class="button is-light" 
+            @click="copyToClipboard()"
+            :class="{ 'is-success': copied }"
+        >
+            <span x-show="!copied">Copy Text</span>
+            <span x-show="copied">Copied!</span>
+        </button>
         <a href="/notes/{{.Entry.ID}}/edit" class="button is-info is-light"
             >Edit</a
         >
