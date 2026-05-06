@@ -11,7 +11,7 @@
     </head>
     <body
         x-data
-        @keydown.window.prevent.s="$refs.searchInput.focus(); $refs.searchInput.setSelectionRange($refs.searchInput.value.length, $refs.searchInput.value.length)"
+        @keydown.window.prevent.alt.s="$refs.searchInput.focus(); $refs.searchInput.setSelectionRange($refs.searchInput.value.length, $refs.searchInput.value.length)"
     >
         <nav class="navbar px-4" role="navigation" aria-label="main navigation">
             <div class="container">
@@ -34,7 +34,7 @@
                                         class="input"
                                         type="text"
                                         name="q"
-                                        placeholder="Search... (s)"
+                                        placeholder="Search... (alt+s)"
                                         x-ref="searchInput"
                                         value="{{.Query}}"
                                         hx-get="/"
