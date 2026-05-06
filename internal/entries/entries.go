@@ -30,13 +30,14 @@ type Tag struct {
 	Name string // Name of the tag (e.g., "work", "thesis").
 }
 
-// ListAll retrieves all entries from the database, ordered by most recently updated.
+// ListAll retrieves a slice of entries from the database with pagination support.
 // Returns a slice of entries or an error.
-func ListAll(ctx context.Context, pool *pgxpool.Pool) ([]Entry, error) {
+func ListAll(ctx context.Context, pool *pgxpool.Pool, limit, offset int) ([]Entry, error) {
 	rows, err := pool.Query(ctx,
 		`SELECT id, entry_type, title, created_at, updated_at
          FROM entries
-         ORDER BY updated_at DESC`,
+         ORDER BY updated_at DESC
+         LIMIT $1 OFFSET $2`, limit, offset,
 	)
 	if err != nil {
 		return nil, err
@@ -55,16 +56,17 @@ func ListAll(ctx context.Context, pool *pgxpool.Pool) ([]Entry, error) {
 	return entries, rows.Err()
 }
 
-// ListByTag retrieves all entries associated with a specific tag.
+// ListByTag retrieves all entries associated with a specific tag with pagination support.
 // Returns a slice of entries or an error.
-func ListByTag(ctx context.Context, pool *pgxpool.Pool, name string) ([]Entry, error) {
+func ListByTag(ctx context.Context, pool *pgxpool.Pool, name string, limit, offset int) ([]Entry, error) {
 	rows, err := pool.Query(ctx,
 		`SELECT e.id, e.entry_type, e.title, e.created_at, e.updated_at
 		 FROM entries e
 		 JOIN entry_tags et ON et.entry_id = e.id
 		 JOIN tags t ON t.id = et.tag_id
 		 WHERE t.name = $1
-		 ORDER BY e.updated_at DESC`, name,
+		 ORDER BY e.updated_at DESC
+         LIMIT $2 OFFSET $3`, name, limit, offset,
 	)
 	if err != nil {
 		return nil, err
@@ -188,14 +190,15 @@ func SetTags(ctx context.Context, pool *pgxpool.Pool, entryID string, tagNames [
 	return tx.Commit(ctx)
 }
 
-// Search performs a full-text search across all entries.
+// Search performs a full-text search across all entries with pagination support.
 // Returns a slice of entries ranked by relevance, or an error.
-func Search(ctx context.Context, pool *pgxpool.Pool, query string) ([]Entry, error) {
+func Search(ctx context.Context, pool *pgxpool.Pool, query string, limit, offset int) ([]Entry, error) {
 	rows, err := pool.Query(ctx,
 		`SELECT id, entry_type, title, created_at, updated_at
 		 FROM entries
 		 WHERE search_vector @@ plainto_tsquery('english', $1)
-		 ORDER BY ts_rank(search_vector, plainto_tsquery('english', $1)) DESC`, query,
+		 ORDER BY ts_rank(search_vector, plainto_tsquery('english', $1)) DESC
+         LIMIT $2 OFFSET $3`, query, limit, offset,
 	)
 	if err != nil {
 		return nil, err

@@ -37,6 +37,7 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/nemouu/cairn/internal/bookmarks"
 	"github.com/nemouu/cairn/internal/database"
@@ -65,6 +66,13 @@ func main() {
 		log.Fatal(err)
 	}
 
+	// Template functions
+	tmplFuncs := template.FuncMap{
+		"add": func(a, b int) int {
+			return a + b
+		},
+	}
+
 	// Set up routes
 	mux := http.NewServeMux()
 
@@ -75,15 +83,22 @@ func main() {
 	// Dashboard handler: lists all entries or filters by search query
 	mux.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
 		query := r.URL.Query().Get("q") // Get search query from URL
+		pageStr := r.URL.Query().Get("page")
+		page, _ := strconv.Atoi(pageStr)
+		if page < 1 {
+			page = 1
+		}
+		pageSize := 12
+		offset := (page - 1) * pageSize
 
 		var entryList []entries.Entry
 		var err error
 
 		// Search mode or normal mode
 		if query != "" {
-			entryList, err = entries.Search(r.Context(), pool, query)
+			entryList, err = entries.Search(r.Context(), pool, query, pageSize, offset)
 		} else {
-			entryList, err = entries.ListAll(r.Context(), pool)
+			entryList, err = entries.ListAll(r.Context(), pool, pageSize, offset)
 		}
 
 		if err != nil {
@@ -104,37 +119,45 @@ func main() {
 			return
 		}
 
+		data := map[string]any{
+			"Entries":   entryList,
+			"EntryTags": entryTags,
+			"Query":     query,
+			"NextPage":  page + 1,
+			"PageSize":  pageSize,
+		}
+
 		// Render template with data or return an error
 		var tmpl *template.Template
 		if r.Header.Get("HX-Request") == "true" {
-			tmpl, err = template.ParseFiles("templates/partials/entry_list.html")
+			// If it's specifically an infinite scroll request (has page param and not search/filter)
+			// We want to return the partial if it's ANY HX-Request but for infinite scroll we need to
+			// know if we should just return the CARDS or the whole LIST. So we kept it simple: if
+			// HX-Request and we have a page > 1, it's infinite scroll.
+			tmpl, err = template.New("entry_list.html").Funcs(tmplFuncs).ParseFiles("templates/partials/entry_list.html")
 			if err != nil {
 				http.Error(w, "template error", http.StatusInternalServerError)
 				return
 			}
-			data := map[string]any{
-				"Entries":   entryList,
-				"EntryTags": entryTags,
-				"Query":     query,
+
+			templateName := "entry-list"
+			if page > 1 {
+				templateName = "entry-cards"
 			}
-			if err := tmpl.ExecuteTemplate(w, "entry-list", data); err != nil {
+
+			if err := tmpl.ExecuteTemplate(w, templateName, data); err != nil {
 				log.Println("template render error:", err)
 			}
 			return
 		}
 
-		tmpl, err = template.ParseFiles("templates/layout.html", "templates/home.html", "templates/partials/entry_list.html")
+		tmpl, err = template.New("layout.html").Funcs(tmplFuncs).ParseFiles("templates/layout.html", "templates/home.html", "templates/partials/entry_list.html")
 		if err != nil {
 			http.Error(w, "template error", http.StatusInternalServerError)
 			return
 		}
 
-		data := map[string]any{
-			"Title":     "Dashboard",
-			"Entries":   entryList,
-			"EntryTags": entryTags,
-			"Query":     query,
-		}
+		data["Title"] = "Dashboard"
 
 		if err := tmpl.ExecuteTemplate(w, "layout.html", data); err != nil {
 			log.Println("template render error:", err)
@@ -144,8 +167,15 @@ func main() {
 	// Tag handler: lists entries filtered by a specific tag
 	mux.HandleFunc("GET /tags/{name}", func(w http.ResponseWriter, r *http.Request) {
 		tagName := r.PathValue("name")
+		pageStr := r.URL.Query().Get("page")
+		page, _ := strconv.Atoi(pageStr)
+		if page < 1 {
+			page = 1
+		}
+		pageSize := 12
+		offset := (page - 1) * pageSize
 
-		entriesByTagsList, err := entries.ListByTag(r.Context(), pool, tagName)
+		entriesByTagsList, err := entries.ListByTag(r.Context(), pool, tagName, pageSize, offset)
 		if err != nil {
 			http.Error(w, "database error", http.StatusInternalServerError)
 			return
@@ -164,35 +194,41 @@ func main() {
 			return
 		}
 
+		data := map[string]any{
+			"Entries":   entriesByTagsList,
+			"EntryTags": entryTags,
+			"TagName":   tagName,
+			"NextPage":  page + 1,
+			"PageSize":  pageSize,
+		}
+
 		// Render template with data or return an error
 		var tmpl *template.Template
 		if r.Header.Get("HX-Request") == "true" {
-			tmpl, err = template.ParseFiles("templates/partials/entry_list.html")
+			tmpl, err = template.New("entry_list.html").Funcs(tmplFuncs).ParseFiles("templates/partials/entry_list.html")
 			if err != nil {
 				http.Error(w, "template error", http.StatusInternalServerError)
 				return
 			}
-			data := map[string]any{
-				"Entries":   entriesByTagsList,
-				"EntryTags": entryTags,
+
+			templateName := "entry-list"
+			if page > 1 {
+				templateName = "entry-cards"
 			}
-			if err := tmpl.ExecuteTemplate(w, "entry-list", data); err != nil {
+
+			if err := tmpl.ExecuteTemplate(w, templateName, data); err != nil {
 				log.Println("template render error:", err)
 			}
 			return
 		}
 
-		tmpl, err = template.ParseFiles("templates/layout.html", "templates/home.html", "templates/partials/entry_list.html")
+		tmpl, err = template.New("layout.html").Funcs(tmplFuncs).ParseFiles("templates/layout.html", "templates/home.html", "templates/partials/entry_list.html")
 		if err != nil {
 			http.Error(w, "template error", http.StatusInternalServerError)
 			return
 		}
 
-		data := map[string]any{
-			"Title":     "Tag: " + tagName,
-			"Entries":   entriesByTagsList,
-			"EntryTags": entryTags,
-		}
+		data["Title"] = "Tag: " + tagName
 
 		if err := tmpl.ExecuteTemplate(w, "layout.html", data); err != nil {
 			log.Println("template render error:", err)
