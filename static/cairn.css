@@ -310,6 +310,44 @@ h1.title {
     background-color: var(--bulma-scheme-main);
 }
 
+/* Todo Item Refinements */
+.todo-item-row {
+    padding: 0.5rem;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+}
+
+.todo-item-row:hover {
+    background-color: var(--bulma-scheme-main-bis);
+    border-color: var(--bulma-border);
+}
+
+.todo-checkbox {
+    background: transparent !important;
+    border: none !important;
+    color: var(--bulma-text-weak);
+    transition: transform 0.1s ease, color 0.2s ease;
+}
+
+.todo-checkbox:hover {
+    transform: scale(1.15);
+    color: var(--bulma-primary);
+}
+
+.todo-checkbox.is-done {
+    color: var(--bulma-primary);
+}
+
+.todo-body-text {
+    transition: color 0.3s ease;
+}
+
+.todo-body-text.is-done {
+    text-decoration: line-through;
+    color: var(--bulma-text-weak);
+}
+
 /* === Custom Dropdown === */
 .navbar-dropdown-custom {
     position: absolute;
