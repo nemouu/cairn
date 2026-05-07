@@ -1,27 +1,53 @@
 {{define "note-body"}}
-<div id="note-body" hx-get="/notes/{{.Entry.ID}}/body/edit" hx-trigger="click" hx-target="this" hx-swap="outerHTML" class="content block clickable-body">
-    {{if .Note.Body}}
-        {{.Note.Body}}
-    {{else}}
-        <p class="has-text-grey">Click to add content...</p>
-    {{end}}
-</div>
-{{end}}
+<div 
+    id="note-body-container"
+    x-data="{ 
+        editing: false, 
+        content: `{{.Note.Body}}`,
+        rendered: '',
+        render() {
+            this.rendered = marked.parse(this.content || '*No content yet...*');
+        },
+        save() {
+            this.editing = false;
+            this.render();
+            // Use htmx to save to the server
+            htmx.ajax('POST', '/notes/{{.Entry.ID}}/body', {
+                values: { body: this.content },
+                target: '#note-body-container',
+                swap: 'none'
+            });
+        }
+    }" 
+    x-init="render()"
+    class="block"
+>
+    <!-- View Mode -->
+    <div 
+        x-show="!editing" 
+        @click="editing = true; $nextTick(() => $refs.editor.focus())"
+        class="content p-4 is-clickable note-render-area"
+        x-html="rendered"
+    >
+    </div>
 
-{{define "note-body-edit"}}
-<form hx-post="/notes/{{.Entry.ID}}/body" hx-target="this" hx-swap="outerHTML" class="block">
-    <div class="field">
+    <!-- Edit Mode -->
+    <div x-show="editing" x-cloak class="field">
         <div class="control">
-            <textarea class="textarea" name="body" rows="10" autofocus @keyup.esc="htmx.trigger(this, 'cancel')" hx-get="/notes/{{.Entry.ID}}/body" hx-trigger="cancel" hx-target="closest form" hx-swap="outerHTML">{{.Note.Body}}</textarea>
+            <textarea 
+                x-ref="editor"
+                class="textarea is-family-code" 
+                x-model="content"
+                rows="12"
+                @keydown.escape="editing = false; render()"
+                @keydown.ctrl.enter="save()"
+                @blur="save()"
+                placeholder="Write some markdown..."
+            ></textarea>
         </div>
+        <p class="help has-text-grey">
+            Esc to cancel • Ctrl+Enter or click away to save • Markdown supported
+        </p>
     </div>
-    <div class="field is-grouped">
-        <div class="control">
-            <button type="submit" class="button is-primary is-small">Save</button>
-        </div>
-        <div class="control">
-            <button type="button" class="button is-light is-small" hx-get="/notes/{{.Entry.ID}}/body" hx-target="closest form" hx-swap="outerHTML">Cancel</button>
-        </div>
-    </div>
-</form>
+</div>
 {{end}}
