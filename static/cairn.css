@@ -348,6 +348,19 @@ h1.title {
     color: var(--bulma-text-weak);
 }
 
+/* Bookmark Item Refinements */
+.bookmark-item-row {
+    padding: 0.75rem;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+}
+
+.bookmark-item-row:hover {
+    background-color: var(--bulma-scheme-main-bis);
+    border-color: var(--bulma-border);
+}
+
 /* === Custom Dropdown === */
 .navbar-dropdown-custom {
     position: absolute;

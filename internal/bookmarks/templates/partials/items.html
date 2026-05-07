@@ -1,41 +1,50 @@
 {{define "bookmark-items"}}
 <div class="block" id="bookmark-items">
     {{if .BookmarkItems}} {{range .BookmarkItems}}
-    <div class="level is-mobile mb-3">
-        <div class="level-left">
-            <div>
-                <a href="{{.URL}}" target="_blank" class="has-text-link"
-                    >{{.URL}}</a
-                >
-                <div class="mt-1">
-                    {{if .LastCheckedAt}} {{if .LastStatus}}
-                    <span class="tag is-success is-light">{{.LastStatus}}</span>
-                    {{else}}
-                    <span class="tag is-danger is-light">Failed</span>
-                    {{end}}
-                    <span class="is-size-7 has-text-grey ml-1">
-                        {{.LastCheckedAt.Format "2 Jan 15:04"}}
+    <div class="level is-mobile bookmark-item-row mb-1">
+        <div class="level-left" style="overflow: hidden; flex-shrink: 1;">
+            <div style="overflow: hidden; width: 100%;">
+                <div class="is-flex is-align-items-center">
+                    <span class="icon is-small has-text-grey-light mr-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
                     </span>
+                    <a href="{{.URL}}" target="_blank" class="has-text-link" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                        {{.URL}}
+                    </a>
+                </div>
+                <div class="is-flex is-align-items-center mt-1">
+                    {{if .LastCheckedAt}}
+                        {{if .LastStatus}}
+                            <span class="tag is-success is-light is-small py-0 px-2" style="height: 1.25rem;">{{.LastStatus}}</span>
+                        {{else}}
+                            <span class="tag is-danger is-light is-small py-0 px-2" style="height: 1.25rem;">Failed</span>
+                        {{end}}
+                        <span class="is-size-7 has-text-grey-light ml-2">
+                            Checked {{.LastCheckedAt.Format "2 Jan, 15:04"}}
+                        </span>
                     {{else}}
-                    <span class="tag is-warning is-light">Not checked</span>
+                        <span class="tag is-warning is-light is-small py-0 px-2" style="height: 1.25rem;">Not checked</span>
                     {{end}}
                 </div>
             </div>
         </div>
-        <div class="level-right">
+        <div class="level-right ml-3" style="flex-shrink: 0;">
             <button
-                class="button is-small is-danger is-light"
-                hx-post="/bookmarks/{{$.EntryID}}/items/{{.ID}}/delete"
+                class="button is-ghost is-small has-text-grey-light p-0"
+                hx-post="/bookmarks/{{$.Entry.ID}}/items/{{.ID}}/delete"
                 hx-target="#bookmark-items"
                 hx-swap="outerHTML"
                 hx-confirm="Are you sure you want to delete this link?"
+                title="Delete link"
             >
-                ✕
+                <span class="icon is-small">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                </span>
             </button>
         </div>
     </div>
     {{end}} {{else}}
-    <p class="has-text-grey">No URLs yet. Add one below.</p>
+    <p class="has-text-grey-light is-italic py-4 has-text-centered">No URLs yet. Add one below!</p>
     {{end}}
 </div>
 {{end}}
