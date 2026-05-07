@@ -1,65 +1,69 @@
 {{define "content"}}
-<article class="box">
-    <div class="level">
-        <div class="level-left">
-            <h1 class="title">{{.Entry.Title}}</h1>
-        </div>
-        <div class="level-right">
-            <time class="is-size-7 has-text-grey">
-                {{.Entry.UpdatedAt.Format "2 Jan 2006, 15:04"}}
-            </time>
-        </div>
-    </div>
-
-    {{if .Tags}}
-    <div class="tags">
-        {{range .Tags}}
-        <a href="/tags/{{.Name}}" class="tag is-light">{{.Name}}</a>
-        {{end}}
-    </div>
-    {{end}}
-
-    <!-- Todo items -->
-    {{template "todo-items" .}}
-
-    <!-- Add item -->
-    <div class="field">
-        <form
-            hx-post="/todos/{{.Entry.ID}}/items"
-            hx-target="#todo-items"
-            hx-swap="outerHTML"
-            onshow="this.reset()"
-            hx-on::after-request="if(event.detail.successful) this.reset()"
-            class="field has-addons"
-            style="width: 100%"
-        >
-            <div class="control is-expanded">
-                <input
-                    class="input"
-                    type="text"
-                    name="body"
-                    placeholder="Add new item..."
-                    required
-                />
+<div class="columns is-centered">
+    <div class="column is-8-desktop is-10-tablet">
+        <article class="box">
+            <div class="level">
+                <div class="level-left">
+                    <h1 class="title">{{.Entry.Title}}</h1>
+                </div>
+                <div class="level-right">
+                    <time class="is-size-7 has-text-grey">
+                        {{.Entry.UpdatedAt.Format "2 Jan 2006, 15:04"}}
+                    </time>
+                </div>
             </div>
-            <div class="control">
-                <button type="submit" class="button is-primary">Add</button>
+
+            {{if .Tags}}
+            <div class="tags">
+                {{range .Tags}}
+                <a href="/tags/{{.Name}}" class="tag is-light">{{.Name}}</a>
+                {{end}}
             </div>
-        </form>
-    </div>
+            {{end}}
 
-    <hr />
+            <!-- Todo items -->
+            {{template "todo-items" .}}
 
-    <div class="buttons">
-        <a href="/todos/{{.Entry.ID}}/edit" class="button is-info is-light"
-            >Edit</a
-        >
-        <form method="POST" action="/todos/{{.Entry.ID}}/delete">
-            <button type="submit" class="button is-danger is-light">
-                Delete
-            </button>
-        </form>
-        <a href="/" class="button is-light">Back</a>
+            <!-- Add item -->
+            <div class="field">
+                <form
+                    hx-post="/todos/{{.Entry.ID}}/items"
+                    hx-target="#todo-items"
+                    hx-swap="outerHTML"
+                    onshow="this.reset()"
+                    hx-on::after-request="if(event.detail.successful) this.reset()"
+                    class="field has-addons"
+                    style="width: 100%"
+                >
+                    <div class="control is-expanded">
+                        <input
+                            class="input"
+                            type="text"
+                            name="body"
+                            placeholder="Add new item..."
+                            required
+                        />
+                    </div>
+                    <div class="control">
+                        <button type="submit" class="button is-primary">Add</button>
+                    </div>
+                </form>
+            </div>
+
+            <hr />
+
+            <div class="buttons">
+                <a href="/todos/{{.Entry.ID}}/edit" class="button is-info is-light"
+                    >Edit</a
+                >
+                <form method="POST" action="/todos/{{.Entry.ID}}/delete">
+                    <button type="submit" class="button is-danger is-light">
+                        Delete
+                    </button>
+                </form>
+                <a href="/" class="button is-light">Back</a>
+            </div>
+        </article>
     </div>
-</article>
+</div>
 {{end}}

@@ -1,47 +1,53 @@
 {{define "content"}}
-<h1 class="title">{{if .IsEdit}}Edit Todo{{else}}New Todo{{end}}</h1>
+<div class="columns is-centered">
+    <div class="column is-8-desktop is-10-tablet">
+        <div class="box">
+            <h1 class="title">{{if .IsEdit}}Edit Todo{{else}}New Todo{{end}}</h1>
 
-<form
-    method="POST"
-    action="{{if .IsEdit}}/todos/{{.Entry.ID}}{{else}}/todos{{end}}"
->
-    <div class="field">
-        <label class="label" for="title">Title</label>
-        <div class="control">
-            <input
-                class="input"
-                type="text"
-                id="title"
-                name="title"
-                value="{{if .IsEdit}}{{.Entry.Title}}{{end}}"
-                required
-            />
+            <form
+                method="POST"
+                action="{{if .IsEdit}}/todos/{{.Entry.ID}}{{else}}/todos{{end}}"
+            >
+                <div class="field">
+                    <label class="label" for="title">Title</label>
+                    <div class="control">
+                        <input
+                            class="input"
+                            type="text"
+                            id="title"
+                            name="title"
+                            value="{{if .IsEdit}}{{.Entry.Title}}{{end}}"
+                            required
+                        />
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label class="label" for="tags">Tags</label>
+                    <div class="control">
+                        <input
+                            class="input"
+                            type="text"
+                            id="tags"
+                            name="tags"
+                            value="{{if .IsEdit}}{{range $i, $t := .Tags}}{{if $i}}, {{end}}{{$t.Name}}{{end}}{{end}}"
+                            placeholder="comma separated, e.g. work, thesis"
+                        />
+                    </div>
+                </div>
+
+                <div class="field is-grouped">
+                    <div class="control">
+                        <button type="submit" class="button is-primary">
+                            {{if .IsEdit}}Save{{else}}Create{{end}}
+                        </button>
+                    </div>
+                    <div class="control">
+                        <a href="/" class="button is-light">Cancel</a>
+                    </div>
+                </div>
+            </form>
         </div>
     </div>
-
-    <div class="field">
-        <label class="label" for="tags">Tags</label>
-        <div class="control">
-            <input
-                class="input"
-                type="text"
-                id="tags"
-                name="tags"
-                value="{{if .IsEdit}}{{range $i, $t := .Tags}}{{if $i}}, {{end}}{{$t.Name}}{{end}}{{end}}"
-                placeholder="comma separated, e.g. work, thesis"
-            />
-        </div>
-    </div>
-
-    <div class="field is-grouped">
-        <div class="control">
-            <button type="submit" class="button is-primary">
-                {{if .IsEdit}}Save{{else}}Create{{end}}
-            </button>
-        </div>
-        <div class="control">
-            <a href="/" class="button is-light">Cancel</a>
-        </div>
-    </div>
-</form>
+</div>
 {{end}}

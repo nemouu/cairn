@@ -1,53 +1,57 @@
 {{define "content"}}
-<article class="box">
-    <div class="level">
-        <div class="level-left">
-            <h1 class="title">{{.Entry.Title}}</h1>
-        </div>
-        <div class="level-right">
-            <time class="is-size-7 has-text-grey">
-                {{.Entry.UpdatedAt.Format "2 Jan 2006, 15:04"}}
-            </time>
-        </div>
-    </div>
+<div class="columns is-centered">
+    <div class="column is-8-desktop is-10-tablet">
+        <article class="box">
+            <div class="level">
+                <div class="level-left">
+                    <h1 class="title">{{.Entry.Title}}</h1>
+                </div>
+                <div class="level-right">
+                    <time class="is-size-7 has-text-grey">
+                        {{.Entry.UpdatedAt.Format "2 Jan 2006, 15:04"}}
+                    </time>
+                </div>
+            </div>
 
-    {{if .Tags}}
-    <div class="tags">
-        {{range .Tags}}
-        <a href="/tags/{{.Name}}" class="tag is-light">{{.Name}}</a>
-        {{end}}
-    </div>
-    {{end}}
+            {{if .Tags}}
+            <div class="tags">
+                {{range .Tags}}
+                <a href="/tags/{{.Name}}" class="tag is-light">{{.Name}}</a>
+                {{end}}
+            </div>
+            {{end}}
 
-    {{template "note-body" .}}
+            {{template "note-body" .}}
 
-    <div class="buttons" x-data="{ 
-        copied: false,
-        copyToClipboard() {
-            const text = document.getElementById('note-body').innerText;
-            navigator.clipboard.writeText(text).then(() => {
-                this.copied = true;
-                setTimeout(() => this.copied = false, 2000);
-            });
-        }
-    }">
-        <button 
-            class="button is-light" 
-            @click="copyToClipboard()"
-            :class="{ 'is-success': copied }"
-        >
-            <span x-show="!copied">Copy Text</span>
-            <span x-show="copied">Copied!</span>
-        </button>
-        <a href="/notes/{{.Entry.ID}}/edit" class="button is-info is-light"
-            >Edit</a
-        >
-        <form method="POST" action="/notes/{{.Entry.ID}}/delete">
-            <button type="submit" class="button is-danger is-light">
-                Delete
-            </button>
-        </form>
-        <a href="/" class="button is-light">Back</a>
+            <div class="buttons" x-data="{ 
+                copied: false,
+                copyToClipboard() {
+                    const text = document.getElementById('note-body').innerText;
+                    navigator.clipboard.writeText(text).then(() => {
+                        this.copied = true;
+                        setTimeout(() => this.copied = false, 2000);
+                    });
+                }
+            }">
+                <button 
+                    class="button is-light" 
+                    @click="copyToClipboard()"
+                    :class="{ 'is-success': copied }"
+                >
+                    <span x-show="!copied">Copy Text</span>
+                    <span x-show="copied">Copied!</span>
+                </button>
+                <a href="/notes/{{.Entry.ID}}/edit" class="button is-info is-light"
+                    >Edit</a
+                >
+                <form method="POST" action="/notes/{{.Entry.ID}}/delete">
+                    <button type="submit" class="button is-danger is-light">
+                        Delete
+                    </button>
+                </form>
+                <a href="/" class="button is-light">Back</a>
+            </div>
+        </article>
     </div>
-</article>
+</div>
 {{end}}

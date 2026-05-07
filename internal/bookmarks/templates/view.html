@@ -1,74 +1,78 @@
 {{define "content"}}
-<article class="box">
-    <div class="level">
-        <div class="level-left">
-            <h1 class="title">{{.Entry.Title}}</h1>
-        </div>
-        <div class="level-right">
-            <time class="is-size-7 has-text-grey">
-                {{.Entry.UpdatedAt.Format "2 Jan 2006, 15:04"}}
-            </time>
-        </div>
+<div class="columns is-centered">
+    <div class="column is-8-desktop is-10-tablet">
+        <article class="box">
+            <div class="level">
+                <div class="level-left">
+                    <h1 class="title">{{.Entry.Title}}</h1>
+                </div>
+                <div class="level-right">
+                    <time class="is-size-7 has-text-grey">
+                        {{.Entry.UpdatedAt.Format "2 Jan 2006, 15:04"}}
+                    </time>
+                </div>
+            </div>
+
+            {{if .Tags}}
+            <div class="tags">
+                {{range .Tags}}
+                <a href="/tags/{{.Name}}" class="tag is-light">{{.Name}}</a>
+                {{end}}
+            </div>
+            {{end}}
+
+            <h2 class="subtitle">Links</h2>
+
+            {{template "bookmark-items" .}}
+
+            <!-- Add URL form -->
+            <form
+                hx-post="/bookmarks/{{.Entry.ID}}/items"
+                hx-target="#bookmark-items"
+                hx-swap="outerHTML"
+                hx-on::after-request="if(event.detail.successful) this.reset()"
+                class="field has-addons"
+                style="width: 100%"
+            >
+                <div class="control is-expanded">
+                    <input
+                        class="input"
+                        type="url"
+                        name="url"
+                        placeholder="https://example.com"
+                        required
+                    />
+                </div>
+                <div class="control">
+                    <button type="submit" class="button is-primary">Add URL</button>
+                </div>
+            </form>
+
+            <hr />
+
+            <div class="buttons">
+                <a href="/bookmarks/{{.Entry.ID}}/edit" class="button is-info is-light"
+                    >Edit</a
+                >
+                <form method="POST" action="/bookmarks/{{.Entry.ID}}/delete">
+                    <button type="submit" class="button is-danger is-light">
+                        Delete
+                    </button>
+                </form>
+                <button
+                    class="button is-warning is-light"
+                    hx-post="/bookmarks/{{.Entry.ID}}/check"
+                    hx-target="#bookmark-items"
+                    hx-swap="outerHTML"
+                    hx-disabled-elt="this"
+                    hx-indicator="#check-indicator"
+                >
+                    Check All Links
+                    <span id="check-indicator" class="htmx-indicator ml-2">⏳</span>
+                </button>
+                <a href="/" class="button is-light">Back</a>
+            </div>
+        </article>
     </div>
-
-    {{if .Tags}}
-    <div class="tags">
-        {{range .Tags}}
-        <a href="/tags/{{.Name}}" class="tag is-light">{{.Name}}</a>
-        {{end}}
-    </div>
-    {{end}}
-
-    <h2 class="subtitle">Links</h2>
-
-    {{template "bookmark-items" .}}
-
-    <!-- Add URL form -->
-    <form
-        hx-post="/bookmarks/{{.Entry.ID}}/items"
-        hx-target="#bookmark-items"
-        hx-swap="outerHTML"
-        hx-on::after-request="if(event.detail.successful) this.reset()"
-        class="field has-addons"
-        style="width: 100%"
-    >
-        <div class="control is-expanded">
-            <input
-                class="input"
-                type="url"
-                name="url"
-                placeholder="https://example.com"
-                required
-            />
-        </div>
-        <div class="control">
-            <button type="submit" class="button is-primary">Add URL</button>
-        </div>
-    </form>
-
-    <hr />
-
-    <div class="buttons">
-        <a href="/bookmarks/{{.Entry.ID}}/edit" class="button is-info is-light"
-            >Edit</a
-        >
-        <form method="POST" action="/bookmarks/{{.Entry.ID}}/delete">
-            <button type="submit" class="button is-danger is-light">
-                Delete
-            </button>
-        </form>
-        <button
-            class="button is-warning is-light"
-            hx-post="/bookmarks/{{.Entry.ID}}/check"
-            hx-target="#bookmark-items"
-            hx-swap="outerHTML"
-            hx-disabled-elt="this"
-            hx-indicator="#check-indicator"
-        >
-            Check All Links
-            <span id="check-indicator" class="htmx-indicator ml-2">⏳</span>
-        </button>
-        <a href="/" class="button is-light">Back</a>
-    </div>
-</article>
+</div>
 {{end}}
