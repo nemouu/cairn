@@ -1,16 +1,32 @@
 {{define "todo-items"}}
-<div class="block" id="todo-items" x-data="{ 
-    total: {{len .Todo}}, 
-    done: {{range .Todo}}{{if .IsDone}}1 + {{end}}{{end}}0 
-}">
-    <!-- Progress Indicator -->
-    <div class="mb-5">
-        <div class="is-flex is-justify-content-space-between is-align-items-center mb-2">
-            <span class="is-size-7 has-text-grey-light">PROGRESS</span>
-            <span class="is-size-7 has-text-grey-light" x-text="`${Math.round((done/total) * 100) || 0}%` "></span>
+<div
+    class="block"
+    id="todo-items"
+    x-data="{
+    total: {{len .Todo}},
+    done: {{range .Todo}}{{if .IsDone}}1 + {{end}}{{end}}0
+}"
+>
+    <!-- Progress Indicator - Only show if there are items -->
+    <template x-if="total > 0">
+        <div class="mb-5">
+            <div
+                class="is-flex is-justify-content-space-between is-align-items-center mb-2"
+            >
+                <span class="is-size-7 has-text-grey-light">PROGRESS</span>
+                <span
+                    class="is-size-7 has-text-grey-light"
+                    x-text="`${Math.round((done/total) * 100) || 0}%` "
+                ></span>
+            </div>
+            <progress
+                class="progress is-primary is-small"
+                :value="done"
+                :max="total"
+                x-text="`${(done/total) * 100}%`"
+            ></progress>
         </div>
-        <progress class="progress is-primary is-small" :value="done" :max="total" x-text="`${(done/total) * 100}%`"></progress>
-    </div>
+    </template>
 
     {{range .Todo}}
     <div class="level is-mobile todo-item-row mb-1">
@@ -24,9 +40,34 @@
             >
                 <span class="icon">
                     {{if .IsDone}}
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                    >
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                    </svg>
                     {{else}}
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle></svg>
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                    >
+                        <circle cx="12" cy="12" r="10"></circle>
+                    </svg>
                     {{end}}
                 </span>
             </button>
@@ -34,23 +75,50 @@
                 {{.Body}}
             </span>
         </div>
-        <div class="level-right">
+        <div class="level-right" x-data="{ confirming: false }">
             <button
-                class="button is-ghost is-small has-text-grey-light p-0"
-                hx-post="/todos/{{$.Entry.ID}}/items/{{.ID}}/delete"
-                hx-target="#todo-items"
-                hx-swap="outerHTML"
-                hx-confirm="Are you sure you want to delete this item?"
+                type="button"
+                x-show="!confirming"
+                @click="confirming = true; setTimeout(() => confirming = false, 3000)"
+                class="button is-ghost is-small has-text-grey-light p-0 delete-action-trigger"
                 title="Delete item"
             >
                 <span class="icon is-small">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                    >
+                        <path d="M3 6h18" />
+                        <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+                        <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+                    </svg>
                 </span>
+            </button>
+            <button
+                type="button"
+                x-show="confirming"
+                x-cloak
+                hx-post="/todos/{{$.Entry.ID}}/items/{{.ID}}/delete"
+                hx-target="#todo-items"
+                hx-swap="outerHTML"
+                class="button is-danger is-small py-0 px-2"
+                style="height: 1.5rem"
+            >
+                <span class="is-size-7">Confirm?</span>
             </button>
         </div>
     </div>
     {{else}}
-    <p class="has-text-grey-light is-italic py-4 has-text-centered">No items yet. Add one below!</p>
+    <p class="has-text-grey-light is-italic py-4 has-text-centered">
+        No items yet. Add one below!
+    </p>
     {{end}}
 </div>
 {{end}}

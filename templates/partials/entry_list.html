@@ -4,70 +4,73 @@
         {{template "entry-cards" .}}
     </div>
 </div>
-{{end}}
-
-{{define "entry-cards"}}
-{{if .Entries}}
-    {{$entriesCount := len .Entries}}
-    {{range $index, $entry := .Entries}}
-    <div class="column is-one-third"
-        {{if eq (add $index 1) $entriesCount}}
-            {{if eq $entriesCount $.PageSize}}
-                hx-get="{{if $.TagName}}/tags/{{$.TagName}}{{else}}/{{end}}?{{if $.Query}}q={{$.Query}}&{{end}}page={{$.NextPage}}"
-                hx-trigger="revealed"
-                hx-swap="afterend"
-            {{end}}
-        {{end}}
+{{end}} {{define "entry-cards"}} {{if .Entries}} {{$entriesCount := len
+.Entries}} {{range $index, $entry := .Entries}}
+<div
+    class="column is-one-third"
+    {{if
+    eq
+    (add
+    $index
+    1)
+    $entriesCount}}
+    {{if
+    eq
+    $entriesCount
+    $.PageSize}}
+    hx-get="{{if $.TagName}}/tags/{{$.TagName}}{{else}}/{{end}}?{{if $.Query}}q={{$.Query}}&{{end}}page={{$.NextPage}}"
+    hx-trigger="revealed"
+    hx-swap="afterend"
+    {{end}}
+    {{end}}
+>
+    <div
+        class="card"
+        x-data="{ hovered: false }"
+        @mouseenter="hovered = true"
+        @mouseleave="hovered = false"
+        :class="{ 'is-hovered': hovered }"
+        @click="window.location = '/{{.EntryType}}s/{{.ID}}'"
     >
-        <div
-            class="card"
-            x-data="{ hovered: false }"
-            @mouseenter="hovered = true"
-            @mouseleave="hovered = false"
-            :class="{ 'is-hovered': hovered }"
-            @click="window.location = '/{{.EntryType}}s/{{.ID}}'"
-        >
-            <div class="card-content">
-                <div class="level is-mobile">
-                    <div class="level-left">
-                        <a href="/{{.EntryType}}s/{{.ID}}">
-                            <p class="title is-5">{{.Title}}</p>
-                        </a>
-                    </div>
-                    <div class="level-right">
-                        <span class="tag is-small is-entry-type is-{{.EntryType}}"
-                            >{{.EntryType}}</span
-                        >
-                    </div>
+        <div class="card-content">
+            <div class="level is-mobile">
+                <div class="level-left">
+                    <a href="/{{.EntryType}}s/{{.ID}}">
+                        <p class="title is-5">{{.Title}}</p>
+                    </a>
                 </div>
+                <div class="level-right">
+                    <span class="tag is-small is-entry-type is-{{.EntryType}}"
+                        >{{.EntryType}}</span
+                    >
+                </div>
+            </div>
 
-                <div class="card-meta">
-                    {{$tags := index $.EntryTags .ID}} {{if $tags}}
-                    <div class="tags">
-                        {{range $tags}}
-                        <a
-                            href="/tags/{{.Name}}"
-                            class="tag is-light"
-                            hx-get="/tags/{{.Name}}"
-                            hx-target="#entry-list"
-                            hx-swap="outerHTML"
-                            hx-push-url="true"
-                            @click.stop
-                            >{{.Name}}</a
-                        >
-                        {{end}}
-                    </div>
+            <div class="card-meta">
+                {{$tags := index $.EntryTags .ID}} {{if $tags}}
+                <div class="tags">
+                    {{range $tags}}
+                    <a
+                        href="/tags/{{.Name}}"
+                        class="tag is-light"
+                        hx-get="/tags/{{.Name}}"
+                        hx-target="#entry-list"
+                        hx-swap="outerHTML"
+                        hx-push-url="true"
+                        @click.stop
+                        >{{.Name}}</a
+                    >
                     {{end}}
-
-                    <time class="is-size-7 has-text-grey">
-                        {{.UpdatedAt.Format "2 Jan 2006"}}
-                    </time>
                 </div>
+                {{end}}
+
+                <time class="is-size-7 has-text-grey">
+                    {{.UpdatedAt.Format "2 Jan 2006"}}
+                </time>
             </div>
         </div>
     </div>
-    {{end}}
-{{else if not (gt $.NextPage 2)}}
-    <p class="has-text-grey">No entries yet. Click + to create one.</p>
-{{end}}
-{{end}}
+</div>
+{{end}} {{else if not (gt $.NextPage 2)}}
+<p class="has-text-grey">No entries yet. Click + to create one.</p>
+{{end}} {{end}}

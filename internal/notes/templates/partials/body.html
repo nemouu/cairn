@@ -1,8 +1,8 @@
 {{define "note-body"}}
-<div 
+<div
     id="note-body-container"
-    x-data="{ 
-        editing: false, 
+    x-data="{
+        editing: false,
         content: `{{.Note.Body}}`,
         rendered: '',
         render() {
@@ -18,25 +18,24 @@
                 swap: 'none'
             });
         }
-    }" 
+    }"
     x-init="render()"
     class="block"
 >
     <!-- View Mode -->
-    <div 
-        x-show="!editing" 
+    <div
+        x-show="!editing"
         @click="editing = true; $nextTick(() => $refs.editor.focus())"
         class="content p-4 is-clickable note-render-area"
         x-html="rendered"
-    >
-    </div>
+    ></div>
 
     <!-- Edit Mode -->
     <div x-show="editing" x-cloak class="field">
         <div class="control">
-            <textarea 
+            <textarea
                 x-ref="editor"
-                class="textarea is-family-code" 
+                class="textarea is-family-code"
                 x-model="content"
                 rows="12"
                 @keydown.escape="editing = false; render()"
@@ -46,7 +45,8 @@
             ></textarea>
         </div>
         <p class="help has-text-grey">
-            Esc to cancel • Ctrl+Enter or click away to save • Markdown supported
+            Esc to cancel • Ctrl+Enter or click away to save • Markdown
+            supported
         </p>
     </div>
 </div>

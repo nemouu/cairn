@@ -254,7 +254,7 @@ func handleDeleteItem(pool *pgxpool.Pool) http.HandlerFunc {
 }
 
 func renderItems(w http.ResponseWriter, r *http.Request, pool *pgxpool.Pool, entryID string) {
-	_, items, err := GetByID(r.Context(), pool, entryID)
+	entry, items, err := GetByID(r.Context(), pool, entryID)
 	if err != nil {
 		http.Error(w, "database error", http.StatusInternalServerError)
 		return
@@ -269,6 +269,7 @@ func renderItems(w http.ResponseWriter, r *http.Request, pool *pgxpool.Pool, ent
 	}
 
 	data := map[string]any{
+		"Entry":         entry,
 		"BookmarkItems": items,
 		"EntryID":       entryID,
 	}

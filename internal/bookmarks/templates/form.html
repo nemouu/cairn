@@ -2,7 +2,9 @@
 <div class="columns is-centered">
     <div class="column is-8-desktop is-10-tablet">
         <div class="box">
-            <h1 class="title">{{if .IsEdit}}Edit Bookmark{{else}}New Bookmark{{end}}</h1>
+            <h1 class="title">
+                {{if .IsEdit}}Edit Bookmark{{else}}New Bookmark{{end}}
+            </h1>
 
             <form
                 method="POST"
@@ -49,8 +51,9 @@
             </form>
 
             <p class="help mt-4">
-                {{if .IsEdit}} Add URLs on the bookmark view page after saving. {{else}}
-                After creating, you'll be able to add URLs to this bookmark. {{end}}
+                {{if .IsEdit}} Add URLs on the bookmark view page after saving.
+                {{else}} After creating, you'll be able to add URLs to this
+                bookmark. {{end}}
             </p>
         </div>
     </div>

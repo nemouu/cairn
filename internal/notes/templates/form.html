@@ -2,7 +2,9 @@
 <div class="columns is-centered">
     <div class="column is-8-desktop is-10-tablet">
         <div class="box">
-            <h1 class="title">{{if .IsEdit}}Edit Note{{else}}New Note{{end}}</h1>
+            <h1 class="title">
+                {{if .IsEdit}}Edit Note{{else}}New Note{{end}}
+            </h1>
 
             <form
                 method="POST"
@@ -39,7 +41,12 @@
                 <div class="field">
                     <label class="label" for="body">Body</label>
                     <div class="control">
-                        <textarea class="textarea" id="body" name="body" rows="10">
+                        <textarea
+                            class="textarea"
+                            id="body"
+                            name="body"
+                            rows="10"
+                        >
 {{if .IsEdit}}{{.Note.Body}}{{end}}</textarea
                         >
                     </div>

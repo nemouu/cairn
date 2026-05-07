@@ -2,7 +2,9 @@
 <div class="columns is-centered">
     <div class="column is-8-desktop is-10-tablet">
         <div class="box">
-            <h1 class="title">{{if .IsEdit}}Edit Todo{{else}}New Todo{{end}}</h1>
+            <h1 class="title">
+                {{if .IsEdit}}Edit Todo{{else}}New Todo{{end}}
+            </h1>
 
             <form
                 method="POST"
