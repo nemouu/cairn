@@ -1,53 +1,55 @@
 # Cairn
 
-Cairn is a self-hosted personal knowledge hub where different entry types have different behaviors like plain notes for freeform writing, todo lists with checkable items, and bookmarks that monitor themselves for link rot. Built as an introduction to Go web development and PostgreSQL.
+Cairn is a self-hosted personal knowledge hub for managing different entry types with specialized behaviors. It handles plain notes for writing, todo lists with progress tracking, and bookmarks with status monitoring. The project serves as an introduction to Go web development and PostgreSQL.
+
+![Cairn Dashboard](screenshot.png)
 
 ## Run
 
 Start the database:
 
-```
+```bash
 docker-compose up db
 ```
 
 Start the app:
 
-```
+```bash
 export DATABASE_URL=postgres://cairn:cairn@localhost:5432/cairn?sslmode=disable
-go run ./cmd/server
+go run ./cmd/server/main.go
 ```
 
 Open [localhost:8080](http://localhost:8080).
 
-Or run everything in Docker:
+Or run the entire stack with Docker:
 
-```
+```bash
 docker-compose up
 ```
 
 ## Stack
 
-- **Go** — standard library for HTTP routing and templates, pgx for PostgreSQL
-- **PostgreSQL**
-- **Docker Compose**
+- Go: Standard library for routing and templates, pgx for PostgreSQL.
+- PostgreSQL: Relational storage with full-text search.
+- HTMX: Dynamic UI updates without page reloads.
+- Alpine.js: Client-side interactivity and state management.
+- Bulma: Modern CSS framework for a responsive, matte design.
+- Docker Compose: Environment orchestration.
 
 ## Design
 
-All entry types share a common `entries` table. Each type has its own table with type-specific columns and a foreign key back to `entries`. Shared features like tagging and search operate on the base table and work across all types automatically.
+All entry types share a base entries table, while specific data lives in dedicated tables with foreign key links. This architecture allows shared features like tagging and search to work across all types automatically.
 
-Adding a new entry type = one SQL migration + one Go package. No changes to existing code.
+Recent updates have unified the design system using shared Go template partials for icons and UI components, centralized utility classes in CSS, and standardized JavaScript patterns for interactive elements like delete confirmations and theme switching.
 
 ## Future Plans
 
-- Background scheduler for automatic bookmark health checks
-- Content drift detection (page returns 200 but content has changed)
-- Reading notes with source tracking (URL, DOI, ISBN)
-- Code snippets with server-side syntax highlighting
-- Decision logs for recording reasoning behind choices
-- Browser bookmark import
-- Add index card entry type
-- Improve overall UI (spacings, buttons, etc)
-- Add better logging
+- Background scheduler for automatic bookmark health checks.
+- Content drift detection for bookmarks.
+- Code snippets with server-side syntax highlighting.
+- Browser bookmark import.
+- Index card entry type.
+- Enhanced logging and monitoring.
 
 ## License
 
