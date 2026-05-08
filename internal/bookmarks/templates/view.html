@@ -4,7 +4,7 @@
         <article class="box">
             {{template "entry-header" (dict "Entry" .Entry "Tags" .Tags "Actions" true)}}
 
-            <h2 class="subtitle is-6 has-text-grey-light mb-4">LINKS</h2>
+            <h2 class="subtitle is-6 text-grey-light mb-4">LINKS</h2>
 
             {{template "bookmark-items" .}}
 
@@ -19,15 +19,11 @@
                 >
                     <div class="control is-expanded">
                         <input
-                            class="input is-shadowless"
+                            class="input is-shadowless input-minimal"
                             type="url"
                             name="url"
                             placeholder="Add a new URL (https://...)"
                             required
-                            style="
-                                background-color: var(--bulma-scheme-main-ter);
-                                border: none;
-                            "
                         />
                     </div>
                     <div class="control">
@@ -49,14 +45,13 @@
 
 {{define "entry-header-actions"}}
 <button
-    class="button is-ghost has-text-grey-light p-0 check-action-trigger"
+    class="button is-ghost text-grey-light p-0 check-action-trigger no-underline"
     hx-post="/bookmarks/{{.Entry.ID}}/check"
     hx-target="#bookmark-items"
     hx-swap="outerHTML"
     hx-disabled-elt="this"
     hx-indicator="#check-indicator"
     title="Check all links status"
-    style="text-decoration: none"
 >
     <span class="icon">
         {{template "icon-refresh" (dict "size" 18)}}

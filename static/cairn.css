@@ -412,3 +412,82 @@ h1.title {
     border-radius: 6px;
     box-shadow: 0 8px 16px var(--bulma-shadow-o-20);
 }
+
+/* === Utility Classes === */
+.flex-between-center {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+}
+
+.flex-align-center {
+    display: flex !important;
+    align-items: center !important;
+}
+
+.text-grey-light {
+    color: var(--bulma-text-weak) !important;
+}
+
+.no-underline {
+    text-decoration: none !important;
+}
+
+.tag-height-small {
+    height: 1.25rem !important;
+}
+
+.flex-grow-1 {
+    flex-grow: 1 !important;
+}
+
+.w-50-centered {
+    width: 50% !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
+
+.relative {
+    position: relative !important;
+}
+
+.overflow-hidden {
+    overflow: hidden !important;
+}
+
+.flex-shrink-0 {
+    flex-shrink: 0 !important;
+}
+
+.flex-shrink-1 {
+    flex-shrink: 1 !important;
+}
+
+.w-full {
+    width: 100% !important;
+}
+
+.ellipsis {
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+}
+
+.h-1-5 {
+    height: 1.5rem !important;
+}
+
+.h-auto {
+    height: auto !important;
+}
+
+.input-minimal {
+    background-color: var(--bulma-scheme-main-ter) !important;
+    border: none !important;
+}
+
+.textarea-minimal {
+    background-color: var(--bulma-scheme-main-ter) !important;
+    border: none !important;
+    resize: vertical;
+}

@@ -3,74 +3,48 @@
     {{if .BookmarkItems}}
         {{range .BookmarkItems}}
         <div class="level is-mobile bookmark-item-row mb-1">
-            <div class="level-left" style="overflow: hidden; flex-shrink: 1">
-                <div style="overflow: hidden; width: 100%">
-                    <div class="is-flex is-align-items-center">
-                        <span class="icon is-small has-text-grey-light mr-2">
+            <div class="level-left overflow-hidden flex-shrink-1">
+                <div class="overflow-hidden w-full">
+                    <div class="flex-align-center">
+                        <span class="icon is-small text-grey-light mr-2">
                             {{template "icon-link" (dict "size" 16)}}
                         </span>
                         <a
                             href="{{.URL}}"
                             target="_blank"
-                            class="has-text-link"
-                            style="
-                                overflow: hidden;
-                                text-overflow: ellipsis;
-                                white-space: nowrap;
-                            "
+                            class="has-text-link ellipsis"
                         >
                             {{.URL}}
                         </a>
                     </div>
-                    <div class="is-flex is-align-items-center mt-1">
+                    <div class="flex-align-center mt-1">
                         {{if .LastCheckedAt}}
                             {{if .LastStatus}}
-                                <span class="tag is-success is-light is-small py-0 px-2" style="height: 1.25rem">{{.LastStatus}}</span>
+                                <span class="tag is-success is-light is-small py-0 px-2 tag-height-small">{{.LastStatus}}</span>
                             {{else}}
-                                <span class="tag is-danger is-light is-small py-0 px-2" style="height: 1.25rem">Failed</span>
+                                <span class="tag is-danger is-light is-small py-0 px-2 tag-height-small">Failed</span>
                             {{end}}
-                            <span class="is-size-7 has-text-grey-light ml-2">
+                            <span class="is-size-7 text-grey-light ml-2">
                                 Checked {{.LastCheckedAt.Format "2 Jan, 15:04"}}
                             </span>
                         {{else}}
-                            <span class="tag is-warning is-light is-small py-0 px-2" style="height: 1.25rem">Not checked</span>
+                            <span class="tag is-warning is-light is-small py-0 px-2 tag-height-small">Not checked</span>
                         {{end}}
                     </div>
                 </div>
             </div>
-            <div
-                class="level-right ml-3"
-                style="flex-shrink: 0"
-                x-data="{ confirming: false }"
-            >
-                <button
-                    type="button"
-                    x-show="!confirming"
-                    @click="confirming = true; setTimeout(() => confirming = false, 3000)"
-                    class="button is-ghost is-small has-text-grey-light p-0 delete-action-trigger"
-                    title="Delete link"
-                >
-                    <span class="icon is-small">
-                        {{template "icon-trash" (dict "size" 14)}}
-                    </span>
-                </button>
-                <button
-                    type="button"
-                    x-show="confirming"
-                    x-cloak
-                    hx-post="/bookmarks/{{$.Entry.ID}}/items/{{.ID}}/delete"
-                    hx-target="#bookmark-items"
-                    hx-swap="outerHTML"
-                    class="button is-danger is-small py-0 px-2"
-                    style="height: 1.5rem"
-                >
-                    <span class="is-size-7">Confirm?</span>
-                </button>
-            </div>
+            {{template "delete-button" (dict 
+                "HTMX" true 
+                "URL" (printf "/bookmarks/%s/items/%s/delete" $.Entry.ID .ID)
+                "Target" "#bookmark-items"
+                "Small" true
+                "Title" "Delete link"
+                "Class" "level-right ml-3 flex-shrink-0"
+            )}}
         </div>
         {{end}}
     {{else}}
-        <p class="has-text-grey-light is-italic py-4 has-text-centered">
+        <p class="text-grey-light is-italic py-4 has-text-centered">
             No URLs yet. Add one below!
         </p>
     {{end}}

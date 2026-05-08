@@ -10,7 +10,7 @@
     </div>
 </div>
 
-<div class="is-flex is-justify-content-space-between is-align-items-center mb-5">
+<div class="flex-between-center mb-5">
     <div>
         {{if .Tags}}
         <div class="tags mb-0">
@@ -21,7 +21,7 @@
         {{end}}
     </div>
     {{if .Actions}}
-    <div class="is-flex is-align-items-center">
+    <div class="flex-align-center">
         {{template "entry-header-actions" .}}
     </div>
     {{end}}

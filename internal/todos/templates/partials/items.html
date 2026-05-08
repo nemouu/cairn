@@ -10,10 +10,10 @@
     <!-- Progress Indicator - Only show if there are items -->
     <template x-if="total > 0">
         <div class="mb-5">
-            <div class="is-flex is-justify-content-space-between is-align-items-center mb-2">
-                <span class="is-size-7 has-text-grey-light">PROGRESS</span>
+            <div class="flex-between-center mb-2">
+                <span class="is-size-7 text-grey-light">PROGRESS</span>
                 <span
-                    class="is-size-7 has-text-grey-light"
+                    class="is-size-7 text-grey-light"
                     x-text="`${Math.round((done/total) * 100) || 0}%` "
                 ></span>
             </div>
@@ -48,35 +48,17 @@
                 {{.Body}}
             </span>
         </div>
-        <div class="level-right" x-data="{ confirming: false }">
-            <button
-                type="button"
-                x-show="!confirming"
-                @click="confirming = true; setTimeout(() => confirming = false, 3000)"
-                class="button is-ghost is-small has-text-grey-light p-0 delete-action-trigger"
-                title="Delete item"
-            >
-                <span class="icon is-small">
-                    {{template "icon-trash" (dict "size" 14)}}
-                </span>
-            </button>
-
-            <button
-                type="button"
-                x-show="confirming"
-                x-cloak
-                hx-post="/todos/{{$.Entry.ID}}/items/{{.ID}}/delete"
-                hx-target="#todo-items"
-                hx-swap="outerHTML"
-                class="button is-danger is-small py-0 px-2"
-                style="height: 1.5rem"
-            >
-                <span class="is-size-7">Confirm?</span>
-            </button>
-        </div>
+        {{template "delete-button" (dict 
+            "HTMX" true 
+            "URL" (printf "/todos/%s/items/%s/delete" $.Entry.ID .ID)
+            "Target" "#todo-items"
+            "Small" true
+            "Title" "Delete item"
+            "Class" "level-right"
+        )}}
     </div>
     {{else}}
-    <p class="has-text-grey-light is-italic py-4 has-text-centered">
+    <p class="text-grey-light is-italic py-4 has-text-centered">
         No items yet. Add one below!
     </p>
     {{end}}

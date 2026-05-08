@@ -2,7 +2,7 @@
 <footer class="entry-view-footer">
     <div class="level is-mobile">
         <div class="level-left">
-            <a href="/" class="button is-ghost has-text-grey p-0" style="text-decoration: none">
+            <a href="/" class="button is-ghost has-text-grey p-0 no-underline">
                 <span class="icon">
                     {{template "icon-chevron-left" (dict "size" 18)}}
                 </span>
@@ -17,35 +17,10 @@
                     </span>
                     <span>Edit</span>
                 </a>
-                <div x-data="{ confirming: false }">
-                    <button
-                        type="button"
-                        x-show="!confirming"
-                        @click="confirming = true; setTimeout(() => confirming = false, 3000)"
-                        class="button is-light is-danger-light"
-                    >
-                        <span class="icon is-small">
-                            {{template "icon-trash" (dict "size" 16)}}
-                        </span>
-                        <span>Delete</span>
-                    </button>
-                    <form
-                        method="POST"
-                        action="/{{.Entry.EntryType}}s/{{.Entry.ID}}/delete"
-                        x-show="confirming"
-                        x-cloak
-                        x-transition:enter="transition ease-out duration-200"
-                        x-transition:enter-start="opacity-0 scale-95"
-                        x-transition:enter-end="opacity-100 scale-100"
-                    >
-                        <button type="submit" class="button is-danger">
-                            <span class="icon is-small">
-                                {{template "icon-trash" (dict "size" 16)}}
-                            </span>
-                            <span>Confirm Delete?</span>
-                        </button>
-                    </form>
-                </div>
+                {{template "delete-button" (dict 
+                    "HTMX" false 
+                    "URL" (printf "/%ss/%s/delete" .Entry.EntryType .Entry.ID)
+                )}}
             </div>
         </div>
     </div>

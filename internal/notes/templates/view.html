@@ -42,13 +42,12 @@
         Copied!
     </span>
     <button
-        class="button is-ghost p-0"
+        class="button is-ghost p-0 no-underline h-auto"
         title="Copy to clipboard"
-        style="height: auto; text-decoration: none"
     >
         <span
             class="icon"
-            :class="{ 'has-text-success': copied, 'has-text-grey-light': !copied }"
+            :class="{ 'has-text-success': copied, 'text-grey-light': !copied }"
         >
             <template x-if="!copied">
                 {{template "icon-copy" (dict "size" 18)}}

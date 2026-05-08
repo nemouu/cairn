@@ -118,6 +118,7 @@ func handleView(pool *pgxpool.Pool) http.HandlerFunc {
 			"templates/partials/icons.html",
 			"templates/partials/entry_header.html",
 			"templates/partials/entry_footer.html",
+			"templates/partials/delete_button.html",
 		)
 		if err != nil {
 			http.Error(w, "template error", http.StatusInternalServerError)

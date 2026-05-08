@@ -124,6 +124,7 @@ func handleView(pool *pgxpool.Pool) http.HandlerFunc {
 			"templates/partials/icons.html",
 			"templates/partials/entry_header.html",
 			"templates/partials/entry_footer.html",
+			"templates/partials/delete_button.html",
 		)
 		if err != nil {
 			http.Error(w, "template error", http.StatusInternalServerError)
@@ -273,6 +274,7 @@ func renderItems(w http.ResponseWriter, r *http.Request, pool *pgxpool.Pool, ent
 	tmpl, err := template.New("items.html").Funcs(entries.TmplFuncs).ParseFiles(
 		"internal/bookmarks/templates/partials/items.html",
 		"templates/partials/icons.html",
+		"templates/partials/delete_button.html",
 	)
 	if err != nil {
 		http.Error(w, "template error", http.StatusInternalServerError)
