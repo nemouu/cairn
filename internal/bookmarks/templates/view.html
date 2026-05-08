@@ -27,9 +27,9 @@
                     </div>
                     {{end}}
                 </div>
-                <div>
+                <div class="is-flex is-align-items-center">
                     <button
-                        class="button is-ghost has-text-grey-light p-0"
+                        class="button is-ghost has-text-grey-light p-0 check-action-trigger"
                         hx-post="/bookmarks/{{.Entry.ID}}/check"
                         hx-target="#bookmark-items"
                         hx-swap="outerHTML"
@@ -56,10 +56,10 @@
                                 <path d="M21 3v5h-5" />
                             </svg>
                         </span>
-                        <span id="check-indicator" class="htmx-indicator ml-1"
-                            >⏳</span
-                        >
                     </button>
+                    <span id="check-indicator" class="htmx-indicator ml-1"
+                        >⏳</span
+                    >
                 </div>
             </div>
 

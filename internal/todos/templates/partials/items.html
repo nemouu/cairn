@@ -3,16 +3,14 @@
     class="block"
     id="todo-items"
     x-data="{
-    total: {{len .Todo}},
-    done: {{range .Todo}}{{if .IsDone}}1 + {{end}}{{end}}0
-}"
+        total: {{len .Todo}},
+        done: {{range .Todo}}{{if .IsDone}}1 + {{end}}{{end}}0
+    }"
 >
     <!-- Progress Indicator - Only show if there are items -->
     <template x-if="total > 0">
         <div class="mb-5">
-            <div
-                class="is-flex is-justify-content-space-between is-align-items-center mb-2"
-            >
+            <div class="is-flex is-justify-content-space-between is-align-items-center mb-2">
                 <span class="is-size-7 has-text-grey-light">PROGRESS</span>
                 <span
                     class="is-size-7 has-text-grey-light"

@@ -310,15 +310,21 @@ h1.title {
     background-color: var(--bulma-scheme-main);
 }
 
-/* Delete action hover effect */
-.delete-action-trigger {
+/* Action triggers hover effects */
+.delete-action-trigger,
+.check-action-trigger {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
     padding: 0.5rem !important;
     border-radius: 4px !important;
     border: 1px solid transparent !important;
     transition: all 0.2s ease !important;
+    height: auto !important;
 }
 
-.delete-action-trigger:hover {
+.delete-action-trigger:hover,
+.check-action-trigger:hover {
     border-color: var(--bulma-primary) !important;
     box-shadow: 0 2px 8px var(--bulma-shadow-o-10) !important;
     background-color: var(--bulma-scheme-main) !important;
