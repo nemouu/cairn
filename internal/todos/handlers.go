@@ -50,7 +50,11 @@ func handleForm(pool *pgxpool.Pool, isEdit bool) http.HandlerFunc {
 			data["Tags"] = tags
 		}
 
-		tmpl, err := template.ParseFiles("templates/layout.html", "internal/todos/templates/form.html")
+		tmpl, err := template.New("layout.html").Funcs(entries.TmplFuncs).ParseFiles(
+			"templates/layout.html",
+			"internal/todos/templates/form.html",
+			"templates/partials/icons.html",
+		)
 		if err != nil {
 			http.Error(w, "template error", http.StatusInternalServerError)
 			return
@@ -105,7 +109,14 @@ func handleView(pool *pgxpool.Pool) http.HandlerFunc {
 			return
 		}
 
-		tmpl, err := template.ParseFiles("templates/layout.html", "internal/todos/templates/view.html", "internal/todos/templates/partials/items.html")
+		tmpl, err := template.New("layout.html").Funcs(entries.TmplFuncs).ParseFiles(
+			"templates/layout.html",
+			"internal/todos/templates/view.html",
+			"internal/todos/templates/partials/items.html",
+			"templates/partials/icons.html",
+			"templates/partials/entry_header.html",
+			"templates/partials/entry_footer.html",
+		)
 		if err != nil {
 			http.Error(w, "template error", http.StatusInternalServerError)
 			return
@@ -258,7 +269,10 @@ func renderItems(w http.ResponseWriter, r *http.Request, pool *pgxpool.Pool, id 
 		return
 	}
 
-	tmpl, err := template.ParseFiles("internal/todos/templates/partials/items.html")
+	tmpl, err := template.New("items.html").Funcs(entries.TmplFuncs).ParseFiles(
+		"internal/todos/templates/partials/items.html",
+		"templates/partials/icons.html",
+	)
 	if err != nil {
 		http.Error(w, "template error", http.StatusInternalServerError)
 		return

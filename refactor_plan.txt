@@ -1,0 +1,40 @@
+  Plan: HTML Refactoring & Slimming
+
+  This plan aims to reduce HTML bloat and improve maintainability by centralizing repeated patterns, icons, and structures.
+
+  1. Centralize Icons (SVG Duplication)
+  Objective: Replace all hardcoded <svg> tags with shared Go template partials.
+   - Create templates/partials/icons.html.
+   - Define common icons: trash, edit, check, copy, chevron-left, plus, etc.
+   - Replace occurrences in:
+       - internal/bookmarks/templates/view.html & partials/items.html
+       - internal/notes/templates/view.html
+       - internal/todos/templates/view.html & partials/items.html
+       - templates/layout.html
+
+  2. Shared Entry Components (Footer & Header)
+  Objective: Consolidate repeated structures in "View" pages.
+   - Header: Create templates/partials/entry_header.html to handle Title, Tags, and Timestamp.
+   - Footer: Create templates/partials/entry_footer.html to handle "Back to Dashboard", "Edit", and "Delete" actions.
+   - Update all three entry types to use these shared partials.
+
+  3. CSS Utilities & Class Simplification
+  Objective: Reduce verbose Bulma class strings and inline styles.
+   - Add utility classes to static/cairn.css:
+       - .flex-between-center (is-flex is-justify-content-space-between is-align-items-center)
+       - .text-grey-light (has-text-grey-light)
+       - .no-underline (style="text-decoration: none")
+   - Move specific inline heights (e.g., 1.25rem for tags) to CSS.
+
+  4. JS Pattern Consolidation (Alpine.js)
+  Objective: Simplify the "Confirm Delete" logic.
+   - Standardize the confirming state logic.
+   - Potentially create a reusable partial for the "Delete Button + Confirmation" UI.
+
+  Verification Plan
+   1. Visual Regression: Check all View pages (Bookmark, Note, Todo) to ensure they look identical to the current state.
+   2. Functional Check:
+       - Verify delete confirmation still works (including the 3s timeout).
+       - Verify "Edit" and "Back" buttons link correctly.
+       - Verify health check button (bookmarks) still works.
+   3. HTML Inspection: Verify the source code is significantly cleaner and smaller.

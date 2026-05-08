@@ -7,11 +7,34 @@ package entries
 
 import (
 	"context"
+	"errors"
+	"html/template"
 	"strings"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
+
+// TmplFuncs is a shared map of template functions used across the application.
+var TmplFuncs = template.FuncMap{
+	"add": func(a, b int) int {
+		return a + b
+	},
+	"dict": func(values ...interface{}) (map[string]interface{}, error) {
+		if len(values)%2 != 0 {
+			return nil, errors.New("dict requires even number of arguments")
+		}
+		dict := make(map[string]interface{}, len(values)/2)
+		for i := 0; i < len(values); i += 2 {
+			key, ok := values[i].(string)
+			if !ok {
+				return nil, errors.New("dict keys must be strings")
+			}
+			dict[key] = values[i+1]
+		}
+		return dict, nil
+	},
+}
 
 // Entry represents a generic entry in the Cairn application.
 // All entry types (bookmarks, notes, todos) share this base structure.

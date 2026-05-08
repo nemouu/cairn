@@ -1,0 +1,29 @@
+{{define "entry-header"}}
+<div class="level mb-4">
+    <div class="level-left">
+        <h1 class="title">{{.Entry.Title}}</h1>
+    </div>
+    <div class="level-right">
+        <time class="is-size-7 has-text-grey">
+            {{.Entry.UpdatedAt.Format "2 Jan 2006, 15:04"}}
+        </time>
+    </div>
+</div>
+
+<div class="is-flex is-justify-content-space-between is-align-items-center mb-5">
+    <div>
+        {{if .Tags}}
+        <div class="tags mb-0">
+            {{range .Tags}}
+            <a href="/tags/{{.Name}}" class="tag is-light">{{.Name}}</a>
+            {{end}}
+        </div>
+        {{end}}
+    </div>
+    {{if .Actions}}
+    <div class="is-flex is-align-items-center">
+        {{template "entry-header-actions" .}}
+    </div>
+    {{end}}
+</div>
+{{end}}

@@ -2,266 +2,61 @@
 <div class="columns is-centered">
     <div class="column is-8-desktop is-10-tablet">
         <article class="box">
-            <div class="level">
-                <div class="level-left">
-                    <h1 class="title">{{.Entry.Title}}</h1>
-                </div>
-                <div class="level-right">
-                    <time class="is-size-7 has-text-grey">
-                        {{.Entry.UpdatedAt.Format "2 Jan 2006, 15:04"}}
-                    </time>
-                </div>
-            </div>
+            {{template "entry-header" (dict "Entry" .Entry "Tags" .Tags "Actions" true)}}
 
-            <div class="note-content-wrapper">
-                <div
-                    class="is-flex is-justify-content-space-between is-align-items-center mb-5"
-                >
-                    <div>
-                        {{if .Tags}}
-                        <div class="tags mb-0">
-                            {{range .Tags}}
-                            <a href="/tags/{{.Name}}" class="tag is-light"
-                                >{{.Name}}</a
-                            >
-                            {{end}}
-                        </div>
-                        {{end}}
-                    </div>
-                    <div
-                        x-data="{
-                            copied: false,
-                            copyToClipboard() {
-                                // Find the note render area in the document
-                                const el = document.querySelector('.note-render-area');
-                                if (!el) return;
-                                const text = el.innerText;
-                                navigator.clipboard.writeText(text).then(() => {
-                                    this.copied = true;
-                                    setTimeout(() => this.copied = false, 2000);
-                                });
-                            }
-                        }"
-                        @click.stop="copyToClipboard()"
-                        class="copy-action-trigger"
-                    >
-                        <span
-                            x-show="copied"
-                            x-transition:enter="transition ease-out duration-300"
-                            x-transition:enter-start="opacity-0 transform translate-x-2"
-                            x-transition:enter-end="opacity-100 transform translate-x-0"
-                            x-transition:leave="transition ease-in duration-200"
-                            class="tag is-success is-light is-small"
-                            x-cloak
-                        >
-                            Copied!
-                        </span>
-                        <button
-                            class="button is-ghost p-0"
-                            title="Copy to clipboard"
-                            style="height: auto; text-decoration: none"
-                        >
-                            <span
-                                class="icon"
-                                :class="{ 'has-text-success': copied, 'has-text-grey-light': !copied }"
-                            >
-                                <template x-if="!copied">
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        width="18"
-                                        height="18"
-                                        viewBox="0 0 24 24"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        stroke-width="2"
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                    >
-                                        <rect
-                                            width="14"
-                                            height="14"
-                                            x="8"
-                                            y="8"
-                                            rx="2"
-                                            ry="2"
-                                        ></rect>
-                                        <path
-                                            d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"
-                                        ></path>
-                                    </svg>
-                                </template>
-                                <template x-if="copied">
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        width="18"
-                                        height="18"
-                                        viewBox="0 0 24 24"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        stroke-width="2"
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                    >
-                                        <path d="M20 6 9 17l-5-5"></path>
-                                    </svg>
-                                </template>
-                            </span>
-                        </button>
-                    </div>
-                </div>
+            <div class="content">{{template "note-body" .}}</div>
 
-                <div class="content">{{template "note-body" .}}</div>
-            </div>
-
-            <footer class="entry-view-footer">
-                <div class="level is-mobile">
-                    <div class="level-left">
-                        <a
-                            href="/"
-                            class="button is-ghost has-text-grey p-0"
-                            style="text-decoration: none"
-                        >
-                            <span class="icon">
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    width="18"
-                                    height="18"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    stroke-width="2"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                >
-                                    <path d="m15 18-6-6 6-6" />
-                                </svg>
-                            </span>
-                            <span>Back to Dashboard</span>
-                        </a>
-                    </div>
-                    <div class="level-right">
-                        <div class="buttons">
-                            <a
-                                href="/notes/{{.Entry.ID}}/edit"
-                                class="button is-light is-info-light"
-                            >
-                                <span class="icon is-small">
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        width="16"
-                                        height="16"
-                                        viewBox="0 0 24 24"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        stroke-width="2"
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                    >
-                                        <path
-                                            d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"
-                                        />
-                                        <path d="m15 5 4 4" />
-                                    </svg>
-                                </span>
-                                <span>Edit</span>
-                            </a>
-                            <div x-data="{ confirming: false }">
-                                <button
-                                    type="button"
-                                    x-show="!confirming"
-                                    @click="confirming = true; setTimeout(() => confirming = false, 3000)"
-                                    class="button is-light is-danger-light"
-                                >
-                                    <span class="icon is-small">
-                                        <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            width="16"
-                                            height="16"
-                                            viewBox="0 0 24 24"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            stroke-width="2"
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                        >
-                                            <path d="M3 6h18" />
-                                            <path
-                                                d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"
-                                            />
-                                            <path
-                                                d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"
-                                            />
-                                            <line
-                                                x1="10"
-                                                x2="10"
-                                                y1="11"
-                                                y2="17"
-                                            />
-                                            <line
-                                                x1="14"
-                                                x2="14"
-                                                y1="11"
-                                                y2="17"
-                                            />
-                                        </svg>
-                                    </span>
-                                    <span>Delete</span>
-                                </button>
-                                <form
-                                    method="POST"
-                                    action="/notes/{{.Entry.ID}}/delete"
-                                    x-show="confirming"
-                                    x-cloak
-                                    x-transition:enter="transition ease-out duration-200"
-                                    x-transition:enter-start="opacity-0 scale-95"
-                                    x-transition:enter-end="opacity-100 scale-100"
-                                >
-                                    <button
-                                        type="submit"
-                                        class="button is-danger"
-                                    >
-                                        <span class="icon is-small">
-                                            <svg
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                width="16"
-                                                height="16"
-                                                viewBox="0 0 24 24"
-                                                fill="none"
-                                                stroke="currentColor"
-                                                stroke-width="2"
-                                                stroke-linecap="round"
-                                                stroke-linejoin="round"
-                                            >
-                                                <path d="M3 6h18" />
-                                                <path
-                                                    d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"
-                                                />
-                                                <path
-                                                    d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"
-                                                />
-                                                <line
-                                                    x1="10"
-                                                    x2="10"
-                                                    y1="11"
-                                                    y2="17"
-                                                />
-                                                <line
-                                                    x1="14"
-                                                    x2="14"
-                                                    y1="11"
-                                                    y2="17"
-                                                />
-                                            </svg>
-                                        </span>
-                                        <span>Confirm Delete?</span>
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </footer>
+            {{template "entry-footer" .}}
         </article>
     </div>
+</div>
+{{end}}
+
+{{define "entry-header-actions"}}
+<div
+    x-data="{
+        copied: false,
+        copyToClipboard() {
+            // Find the note render area in the document
+            const el = document.querySelector('.note-render-area');
+            if (!el) return;
+            const text = el.innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                this.copied = true;
+                setTimeout(() => this.copied = false, 2000);
+            });
+        }
+    }"
+    @click.stop="copyToClipboard()"
+    class="copy-action-trigger"
+>
+    <span
+        x-show="copied"
+        x-transition:enter="transition ease-out duration-300"
+        x-transition:enter-start="opacity-0 transform translate-x-2"
+        x-transition:enter-end="opacity-100 transform translate-x-0"
+        x-transition:leave="transition ease-in duration-200"
+        class="tag is-success is-light is-small"
+        x-cloak
+    >
+        Copied!
+    </span>
+    <button
+        class="button is-ghost p-0"
+        title="Copy to clipboard"
+        style="height: auto; text-decoration: none"
+    >
+        <span
+            class="icon"
+            :class="{ 'has-text-success': copied, 'has-text-grey-light': !copied }"
+        >
+            <template x-if="!copied">
+                {{template "icon-copy" (dict "size" 18)}}
+            </template>
+            <template x-if="copied">
+                {{template "icon-check" (dict "size" 18)}}
+            </template>
+        </span>
+    </button>
 </div>
 {{end}}

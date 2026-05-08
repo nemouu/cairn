@@ -2,66 +2,7 @@
 <div class="columns is-centered">
     <div class="column is-8-desktop is-10-tablet">
         <article class="box">
-            <div class="level">
-                <div class="level-left">
-                    <h1 class="title">{{.Entry.Title}}</h1>
-                </div>
-                <div class="level-right">
-                    <time class="is-size-7 has-text-grey">
-                        {{.Entry.UpdatedAt.Format "2 Jan 2006, 15:04"}}
-                    </time>
-                </div>
-            </div>
-
-            <div
-                class="is-flex is-justify-content-space-between is-align-items-center mb-5"
-            >
-                <div>
-                    {{if .Tags}}
-                    <div class="tags mb-0">
-                        {{range .Tags}}
-                        <a href="/tags/{{.Name}}" class="tag is-light"
-                            >{{.Name}}</a
-                        >
-                        {{end}}
-                    </div>
-                    {{end}}
-                </div>
-                <div class="is-flex is-align-items-center">
-                    <button
-                        class="button is-ghost has-text-grey-light p-0 check-action-trigger"
-                        hx-post="/bookmarks/{{.Entry.ID}}/check"
-                        hx-target="#bookmark-items"
-                        hx-swap="outerHTML"
-                        hx-disabled-elt="this"
-                        hx-indicator="#check-indicator"
-                        title="Check all links status"
-                        style="text-decoration: none"
-                    >
-                        <span class="icon">
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="18"
-                                height="18"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                stroke-width="2"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                            >
-                                <path
-                                    d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"
-                                />
-                                <path d="M21 3v5h-5" />
-                            </svg>
-                        </span>
-                    </button>
-                    <span id="check-indicator" class="htmx-indicator ml-1"
-                        >⏳</span
-                    >
-                </div>
-            </div>
+            {{template "entry-header" (dict "Entry" .Entry "Tags" .Tags "Actions" true)}}
 
             <h2 class="subtitle is-6 has-text-grey-light mb-4">LINKS</h2>
 
@@ -92,20 +33,7 @@
                     <div class="control">
                         <button type="submit" class="button is-light">
                             <span class="icon">
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    width="18"
-                                    height="18"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    stroke-width="2"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                >
-                                    <path d="M5 12h14" />
-                                    <path d="M12 5v14" />
-                                </svg>
+                                {{template "icon-plus" (dict "size" 18)}}
                             </span>
                             <span>Add</span>
                         </button>
@@ -113,155 +41,26 @@
                 </form>
             </div>
 
-            <footer class="entry-view-footer">
-                <div class="level is-mobile">
-                    <div class="level-left">
-                        <a
-                            href="/"
-                            class="button is-ghost has-text-grey p-0"
-                            style="text-decoration: none"
-                        >
-                            <span class="icon">
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    width="18"
-                                    height="18"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    stroke-width="2"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                >
-                                    <path d="m15 18-6-6 6-6" />
-                                </svg>
-                            </span>
-                            <span>Back to Dashboard</span>
-                        </a>
-                    </div>
-                    <div class="level-right">
-                        <div class="buttons">
-                            <a
-                                href="/bookmarks/{{.Entry.ID}}/edit"
-                                class="button is-light is-info-light"
-                            >
-                                <span class="icon is-small">
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        width="16"
-                                        height="16"
-                                        viewBox="0 0 24 24"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        stroke-width="2"
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                    >
-                                        <path
-                                            d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"
-                                        />
-                                        <path d="m15 5 4 4" />
-                                    </svg>
-                                </span>
-                                <span>Edit</span>
-                            </a>
-                            <div x-data="{ confirming: false }">
-                                <button
-                                    type="button"
-                                    x-show="!confirming"
-                                    @click="confirming = true; setTimeout(() => confirming = false, 3000)"
-                                    class="button is-light is-danger-light"
-                                >
-                                    <span class="icon is-small">
-                                        <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            width="16"
-                                            height="16"
-                                            viewBox="0 0 24 24"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            stroke-width="2"
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                        >
-                                            <path d="M3 6h18" />
-                                            <path
-                                                d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"
-                                            />
-                                            <path
-                                                d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"
-                                            />
-                                            <line
-                                                x1="10"
-                                                x2="10"
-                                                y1="11"
-                                                y2="17"
-                                            />
-                                            <line
-                                                x1="14"
-                                                x2="14"
-                                                y1="11"
-                                                y2="17"
-                                            />
-                                        </svg>
-                                    </span>
-                                    <span>Delete</span>
-                                </button>
-                                <form
-                                    method="POST"
-                                    action="/bookmarks/{{.Entry.ID}}/delete"
-                                    x-show="confirming"
-                                    x-cloak
-                                    x-transition:enter="transition ease-out duration-200"
-                                    x-transition:enter-start="opacity-0 scale-95"
-                                    x-transition:enter-end="opacity-100 scale-100"
-                                >
-                                    <button
-                                        type="submit"
-                                        class="button is-danger"
-                                    >
-                                        <span class="icon is-small">
-                                            <svg
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                width="16"
-                                                height="16"
-                                                viewBox="0 0 24 24"
-                                                fill="none"
-                                                stroke="currentColor"
-                                                stroke-width="2"
-                                                stroke-linecap="round"
-                                                stroke-linejoin="round"
-                                            >
-                                                <path d="M3 6h18" />
-                                                <path
-                                                    d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"
-                                                />
-                                                <path
-                                                    d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"
-                                                />
-                                                <line
-                                                    x1="10"
-                                                    x2="10"
-                                                    y1="11"
-                                                    y2="17"
-                                                />
-                                                <line
-                                                    x1="14"
-                                                    x2="14"
-                                                    y1="11"
-                                                    y2="17"
-                                                />
-                                            </svg>
-                                        </span>
-                                        <span>Confirm Delete?</span>
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </footer>
+            {{template "entry-footer" .}}
         </article>
     </div>
 </div>
+{{end}}
+
+{{define "entry-header-actions"}}
+<button
+    class="button is-ghost has-text-grey-light p-0 check-action-trigger"
+    hx-post="/bookmarks/{{.Entry.ID}}/check"
+    hx-target="#bookmark-items"
+    hx-swap="outerHTML"
+    hx-disabled-elt="this"
+    hx-indicator="#check-indicator"
+    title="Check all links status"
+    style="text-decoration: none"
+>
+    <span class="icon">
+        {{template "icon-refresh" (dict "size" 18)}}
+    </span>
+</button>
+<span id="check-indicator" class="htmx-indicator ml-1">⏳</span>
 {{end}}

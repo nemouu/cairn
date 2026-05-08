@@ -67,11 +67,7 @@ func main() {
 	}
 
 	// Template functions
-	tmplFuncs := template.FuncMap{
-		"add": func(a, b int) int {
-			return a + b
-		},
-	}
+	tmplFuncs := entries.TmplFuncs
 
 	// Set up routes
 	mux := http.NewServeMux()
@@ -134,7 +130,10 @@ func main() {
 			// We want to return the partial if it's ANY HX-Request but for infinite scroll we need to
 			// know if we should just return the CARDS or the whole LIST. So we kept it simple: if
 			// HX-Request and we have a page > 1, it's infinite scroll.
-			tmpl, err = template.New("entry_list.html").Funcs(tmplFuncs).ParseFiles("templates/partials/entry_list.html")
+			tmpl, err = template.New("entry_list.html").Funcs(tmplFuncs).ParseFiles(
+				"templates/partials/entry_list.html",
+				"templates/partials/icons.html",
+			)
 			if err != nil {
 				http.Error(w, "template error", http.StatusInternalServerError)
 				return
@@ -151,7 +150,12 @@ func main() {
 			return
 		}
 
-		tmpl, err = template.New("layout.html").Funcs(tmplFuncs).ParseFiles("templates/layout.html", "templates/home.html", "templates/partials/entry_list.html")
+		tmpl, err = template.New("layout.html").Funcs(tmplFuncs).ParseFiles(
+			"templates/layout.html",
+			"templates/home.html",
+			"templates/partials/entry_list.html",
+			"templates/partials/icons.html",
+		)
 		if err != nil {
 			http.Error(w, "template error", http.StatusInternalServerError)
 			return
@@ -205,7 +209,10 @@ func main() {
 		// Render template with data or return an error
 		var tmpl *template.Template
 		if r.Header.Get("HX-Request") == "true" {
-			tmpl, err = template.New("entry_list.html").Funcs(tmplFuncs).ParseFiles("templates/partials/entry_list.html")
+			tmpl, err = template.New("entry_list.html").Funcs(tmplFuncs).ParseFiles(
+				"templates/partials/entry_list.html",
+				"templates/partials/icons.html",
+			)
 			if err != nil {
 				http.Error(w, "template error", http.StatusInternalServerError)
 				return
@@ -222,7 +229,12 @@ func main() {
 			return
 		}
 
-		tmpl, err = template.New("layout.html").Funcs(tmplFuncs).ParseFiles("templates/layout.html", "templates/home.html", "templates/partials/entry_list.html")
+		tmpl, err = template.New("layout.html").Funcs(tmplFuncs).ParseFiles(
+			"templates/layout.html",
+			"templates/home.html",
+			"templates/partials/entry_list.html",
+			"templates/partials/icons.html",
+		)
 		if err != nil {
 			http.Error(w, "template error", http.StatusInternalServerError)
 			return
