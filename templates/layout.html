@@ -69,8 +69,7 @@
                                         hx-push-url="true"
                                         @click="$el.closest('form').querySelector('input').value = ''"
                                         class="search-clear"
-                                        >✕</a
-                                    >
+                                    >✕</a>
                                     {{end}}
                                     <button type="submit" class="search-button">
                                         {{template "icon-search" (dict "size" 18)}}
@@ -111,12 +110,7 @@
                         </div>
                         <div class="navbar-item">
                             <div x-data="{ open: false }" class="is-relative">
-                                <button
-                                    class="add-button"
-                                    @click="open = !open"
-                                >
-                                    +
-                                </button>
+                                <button class="add-button" @click="open = !open">+</button>
                                 <div
                                     x-show="open"
                                     x-transition:enter="transition-all ease-out duration-200"
@@ -128,15 +122,9 @@
                                     @click.outside="open = false"
                                     class="navbar-dropdown-custom"
                                 >
-                                    <a class="navbar-item" href="/notes/new"
-                                        >Note</a
-                                    >
-                                    <a class="navbar-item" href="/bookmarks/new"
-                                        >Bookmark</a
-                                    >
-                                    <a class="navbar-item" href="/todos/new"
-                                        >Todo List</a
-                                    >
+                                    <a class="navbar-item" href="/notes/new">Note</a>
+                                    <a class="navbar-item" href="/bookmarks/new">Bookmark</a>
+                                    <a class="navbar-item" href="/todos/new">Todo List</a>
                                 </div>
                             </div>
                         </div>
